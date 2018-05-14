@@ -33,7 +33,8 @@
     <hr>
     <h1><a id="partial-lenses-history"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#">■</a> <a href="#partial-lenses-history">Partial Lenses History</a> &middot; <a href="https://gitter.im/calmm-js/chat"><img src="https://img.shields.io/gitter/room/calmm-js/chat.js.svg" alt="Gitter"></a> <a href="https://github.com/calmm-js/partial.lenses.history"><img src="https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social" alt="GitHub stars"></a> <a href="https://www.npmjs.com/package/partial.lenses.history"><img src="https://img.shields.io/npm/dm/partial.lenses.history.svg" alt="npm"></a></h1>
 <p>Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.</p>
+Undo-Redo history.  See this live
+<a href="https://codesandbox.io/s/2rq54pgrp">CodeSandbox</a> for an example.</p>
 <p><a href="http://badge.fury.io/js/partial.lenses.history"><img src="https://badge.fury.io/js/partial.lenses.history.svg" alt="npm version"></a>
 <a href="https://travis-ci.org/calmm-js/partial.lenses.history"><img src="https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master" alt="Build Status"></a>
 <a href="https://codecov.io/github/calmm-js/partial.lenses.history?branch=master"><img src="https://img.shields.io/codecov/c/github/calmm-js/partial.lenses.history/master.svg" alt="Code Coverage"></a>
@@ -110,6 +111,8 @@ which an update replaces the present value without adding history.</li>
 <code>JSON.parse(JSON.stringify(v))</code> is considered equivalent to <code>v</code> for any value
 <code>v</code> put into history, then it is guaranteed that
 <code>JSON.parse(JSON.stringify(history))</code> is considered equivalent to <code>history</code>.</p>
+<p>Note that <code>H.init</code> is not a pure function, because it takes a timestamp
+underneath.</p>
 <h3><a id="present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#present">■</a> <a href="#present">Present</a></h3>
 <h4><a id="H-present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-present">■</a> <a href="#H-present"><code>H.present(history) ~&gt; value</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.present</code> returns the present value from history.</p>
@@ -133,6 +136,8 @@ which an update replaces the present value without adding history.</li>
 )
 
 </code></pre>
+<p>Note that <code>H.setPresent</code> is not a pure function, because it takes a timestamp
+underneath.</p>
 <h4><a id="H-viewPresent"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewPresent">■</a> <a href="#H-viewPresent"><code>H.viewPresent ~&gt; lens</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.viewPresent</code> is a
 <a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
@@ -140,7 +145,7 @@ on the present value of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, 42),
-  L.modify(H.viewPresent, R.negate),
+  L.modify(H.viewPresent, x =&gt; -x),
   H.present
 )
 

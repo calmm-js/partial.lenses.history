@@ -1,7 +1,8 @@
 # <a id="partial-lenses-history"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#) [Partial Lenses History](#partial-lenses-history) &middot; [![Gitter](https://img.shields.io/gitter/room/calmm-js/chat.js.svg)](https://gitter.im/calmm-js/chat) [![GitHub stars](https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social)](https://github.com/calmm-js/partial.lenses.history) [![npm](https://img.shields.io/npm/dm/partial.lenses.history.svg)](https://www.npmjs.com/package/partial.lenses.history)
 
 Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.
+Undo-Redo history.  See this live
+[CodeSandbox](https://codesandbox.io/s/2rq54pgrp) for an example.
 
 [![npm version](https://badge.fury.io/js/partial.lenses.history.svg)](http://badge.fury.io/js/partial.lenses.history)
 [![Build Status](https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master)](https://travis-ci.org/calmm-js/partial.lenses.history)
@@ -83,6 +84,9 @@ The `history` data type should be considered opaque.  However, assuming that
 `v` put into history, then it is guaranteed that
 `JSON.parse(JSON.stringify(history))` is considered equivalent to `history`.
 
+Note that `H.init` is not a pure function, because it takes a timestamp
+underneath.
+
 ### <a id="present"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#present) [Present](#present)
 
 #### <a id="H-present"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-present) [`H.present(history) ~> value`](#H-present) <small><sup>v0.1.0</sup></small>
@@ -117,6 +121,9 @@ thru(
 // 101
 ```
 
+Note that `H.setPresent` is not a pure function, because it takes a timestamp
+underneath.
+
 #### <a id="H-viewPresent"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-viewPresent) [`H.viewPresent ~> lens`](#H-viewPresent) <small><sup>v0.1.0</sup></small>
 
 `H.viewPresent` is a
@@ -128,7 +135,7 @@ For example:
 ```js
 thru(
   H.init({}, 42),
-  L.modify(H.viewPresent, R.negate),
+  L.modify(H.viewPresent, x => -x),
   H.present
 )
 // -42
