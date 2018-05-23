@@ -5,6 +5,10 @@ import * as S from './seq'
 
 //
 
+const dec = x => x - 1
+
+//
+
 const construct = (i, t, v, c) => ({i, t, v, c})
 
 //
@@ -38,10 +42,6 @@ const setIndexU = (index, history) =>
     history.c
   )
 
-const shiftBy = I.curry((delta, history) =>
-  setIndexU(history.i + delta, history)
-)
-
 // Creating
 
 export const init = I.curryN(2, config => {
@@ -69,8 +69,9 @@ export const viewPresent = L.lens(present, setPresentU)
 
 // Undo
 
-export const undo = shiftBy(-1)
 export {index as undoCount}
+export {viewIndex as viewUndoCount}
+export const undo = L.modify(viewIndex, dec)
 export const undoForget = history =>
   construct(
     0,
@@ -81,8 +82,11 @@ export const undoForget = history =>
 
 // Redo
 
-export const redo = shiftBy(+1)
 export const redoCount = history => count(history) - 1 - history.i
+export const viewRedoCount = L.lens(redoCount, (index, history) =>
+  setIndex(count(history) - 1 - index, history)
+)
+export const redo = L.modify(viewRedoCount, dec)
 export const redoForget = history =>
   construct(
     history.i,
