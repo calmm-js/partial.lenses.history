@@ -57,12 +57,14 @@ Undo-Redo history.  See this live
 <li><a href="#H-undo"><code>H.undo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-undoCount"><code>H.undoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-undoForget"><code>H.undoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
+<li><a href="#H-viewUndoCount"><code>H.viewUndoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></li>
 </ul>
 </li>
 <li><a href="redo">Redo</a><ul>
 <li><a href="#H-redo"><code>H.redo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-redoCount"><code>H.redoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-redoForget"><code>H.redoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
+<li><a href="#H-viewRedoCount"><code>H.viewRedoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></li>
 </ul>
 </li>
 <li><a href="#time-travel">Time travel</a><ul>
@@ -187,6 +189,20 @@ starting from present.</p>
 )
 
 </code></pre>
+<h4><a id="H-viewUndoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewUndoCount">■</a> <a href="#H-viewUndoCount"><code>H.viewUndoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></h4>
+<p><code>H.viewUndoCount</code> is a
+<a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
+on the undo count of history.</p>
+<p>For example:</p>
+<pre><code class="hljs lang-js">thru(
+  H.init({}, &#39;1st&#39;),
+  H.setPresent(&#39;2nd&#39;),
+  H.setPresent(&#39;3rd&#39;),
+  L.modify(H.viewUndoCount, n =&gt; n-1),
+  H.present
+)
+
+</code></pre>
 <h3><a id="redo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#redo">■</a> <a href="redo">Redo</a></h3>
 <h4><a id="H-redo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redo">■</a> <a href="#H-redo"><code>H.redo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.redo</code> increases the index of present by one in history is possible.</p>
@@ -224,6 +240,21 @@ starting from present.</p>
   H.setIndex(0),
   H.redoForget,
   H.redoCount
+)
+
+</code></pre>
+<h4><a id="H-viewRedoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewRedoCount">■</a> <a href="#H-viewRedoCount"><code>H.viewRedoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></h4>
+<p><code>H.viewRedoCount</code> is a
+<a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
+on the redo count of history.</p>
+<p>For example:</p>
+<pre><code class="hljs lang-js">thru(
+  H.init({}, &#39;1st&#39;),
+  H.setPresent(&#39;2nd&#39;),
+  H.setPresent(&#39;3rd&#39;),
+  H.setIndex(0),
+  L.modify(H.viewRedoCount, n =&gt; n-1),
+  H.present
 )
 
 </code></pre>

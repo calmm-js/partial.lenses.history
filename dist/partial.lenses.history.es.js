@@ -1,5 +1,5 @@
-import { acyclicEqualsU, curry, curryN } from 'infestines';
-import { lens } from 'partial.lenses';
+import { acyclicEqualsU, curryN, curry } from 'infestines';
+import { lens, modify } from 'partial.lenses';
 
 var nth = function nth(i, vs) {
   return vs[i];
@@ -21,6 +21,12 @@ var take = function take(n, vs) {
 };
 var of = function of(v) {
   return [v];
+};
+
+//
+
+var dec = function dec(x) {
+  return x - 1;
 };
 
 //
@@ -50,10 +56,6 @@ function setPresentU(value, history) {
 var setIndexU = function setIndexU(index, history) {
   return construct(Math.max(0, Math.min(index, count(history) - 1)), history.t, history.v, history.c);
 };
-
-var shiftBy = /*#__PURE__*/curry(function (delta, history) {
-  return setIndexU(history.i + delta, history);
-});
 
 // Creating
 
@@ -87,22 +89,22 @@ var present = function present(history) {
 };
 var setPresent = /*#__PURE__*/curry(setPresentU);
 var viewPresent = /*#__PURE__*/lens(present, setPresentU);
-
-// Undo
-
-var undo = /*#__PURE__*/shiftBy(-1);
+var undo = /*#__PURE__*/modify(viewIndex, dec);
 var undoForget = function undoForget(history) {
   return construct(0, drop(history.i, history.t), drop(history.i, history.v), history.c);
 };
 
 // Redo
 
-var redo = /*#__PURE__*/shiftBy(+1);
 var redoCount = function redoCount(history) {
   return count(history) - 1 - history.i;
 };
+var viewRedoCount = /*#__PURE__*/lens(redoCount, function (index, history) {
+  return setIndex(count(history) - 1 - index, history);
+});
+var redo = /*#__PURE__*/modify(viewRedoCount, dec);
 var redoForget = function redoForget(history) {
   return construct(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
 };
 
-export { init, count, index, setIndex, viewIndex, present, setPresent, viewPresent, undo, index as undoCount, undoForget, redo, redoCount, redoForget };
+export { init, count, index, setIndex, viewIndex, present, setPresent, viewPresent, index as undoCount, viewIndex as viewUndoCount, undo, undoForget, redoCount, viewRedoCount, redo, redoForget };

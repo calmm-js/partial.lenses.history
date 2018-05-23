@@ -29,6 +29,12 @@ var of = function of(v) {
 
 //
 
+var dec = function dec(x) {
+  return x - 1;
+};
+
+//
+
 var construct = function construct(i, t, v, c) {
   return { i: i, t: t, v: v, c: c };
 };
@@ -54,10 +60,6 @@ function setPresentU(value, history) {
 var setIndexU = function setIndexU(index, history) {
   return construct(Math.max(0, Math.min(index, count(history) - 1)), history.t, history.v, history.c);
 };
-
-var shiftBy = /*#__PURE__*/I.curry(function (delta, history) {
-  return setIndexU(history.i + delta, history);
-});
 
 // Creating
 
@@ -91,20 +93,20 @@ var present = function present(history) {
 };
 var setPresent = /*#__PURE__*/I.curry(setPresentU);
 var viewPresent = /*#__PURE__*/L.lens(present, setPresentU);
-
-// Undo
-
-var undo = /*#__PURE__*/shiftBy(-1);
+var undo = /*#__PURE__*/L.modify(viewIndex, dec);
 var undoForget = function undoForget(history) {
   return construct(0, drop(history.i, history.t), drop(history.i, history.v), history.c);
 };
 
 // Redo
 
-var redo = /*#__PURE__*/shiftBy(+1);
 var redoCount = function redoCount(history) {
   return count(history) - 1 - history.i;
 };
+var viewRedoCount = /*#__PURE__*/L.lens(redoCount, function (index, history) {
+  return setIndex(count(history) - 1 - index, history);
+});
+var redo = /*#__PURE__*/L.modify(viewRedoCount, dec);
 var redoForget = function redoForget(history) {
   return construct(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
 };
@@ -117,9 +119,11 @@ exports.viewIndex = viewIndex;
 exports.present = present;
 exports.setPresent = setPresent;
 exports.viewPresent = viewPresent;
-exports.undo = undo;
 exports.undoCount = index;
+exports.viewUndoCount = viewIndex;
+exports.undo = undo;
 exports.undoForget = undoForget;
-exports.redo = redo;
 exports.redoCount = redoCount;
+exports.viewRedoCount = viewRedoCount;
+exports.redo = redo;
 exports.redoForget = redoForget;
