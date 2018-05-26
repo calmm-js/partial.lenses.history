@@ -79,4 +79,13 @@ describe('History', () => {
     h = H.setPresent(5, h)
     return R.map(i => H.present(H.setIndex(i, h)), R.range(0, H.count(h)))
   })
+
+  testEq(16000, () => {
+    let h = H.init({maxCount: 5000}, 1)
+    for (let i = 2; i < 20000; ++i) h = H.setPresent(i, h)
+    h = H.setIndex(1000, h)
+    h = H.redoForget(h)
+    h = H.undoForget(h)
+    return H.present(h)
+  })
 })
