@@ -33,7 +33,8 @@
     <hr>
     <h1><a id="partial-lenses-history"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#">■</a> <a href="#partial-lenses-history">Partial Lenses History</a> &middot; <a href="https://gitter.im/calmm-js/chat"><img src="https://img.shields.io/gitter/room/calmm-js/chat.js.svg" alt="Gitter"></a> <a href="https://github.com/calmm-js/partial.lenses.history"><img src="https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social" alt="GitHub stars"></a> <a href="https://www.npmjs.com/package/partial.lenses.history"><img src="https://img.shields.io/npm/dm/partial.lenses.history.svg" alt="npm"></a></h1>
 <p>Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.  See this live
+Undo-Redo history.  History can be serialized as JSON and all operations on
+history are either <code>O(1)</code> or <code>O(log n)</code>.  See this live
 <a href="https://codesandbox.io/s/2rq54pgrp">CodeSandbox</a> for an example.</p>
 <p><a href="http://badge.fury.io/js/partial.lenses.history"><img src="https://badge.fury.io/js/partial.lenses.history.svg" alt="npm version"></a>
 <a href="https://travis-ci.org/calmm-js/partial.lenses.history"><img src="https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master" alt="Build Status"></a>
@@ -48,30 +49,22 @@ Undo-Redo history.  See this live
 </ul>
 </li>
 <li><a href="#present">Present</a><ul>
-<li><a href="#H-present"><code>H.present(history) ~&gt; value</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-setPresent"><code>H.setPresent(value, history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-viewPresent"><code>H.viewPresent ~&gt; lens</code></a> <small><sup>v0.1.0</sup></small></li>
+<li><a href="#H-present"><code>H.present ~&gt; valueLens</code></a> <small><sup>v0.2.0</sup></small></li>
 </ul>
 </li>
 <li><a href="#undo">Undo</a><ul>
-<li><a href="#H-undo"><code>H.undo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-undoCount"><code>H.undoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-undoForget"><code>H.undoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-viewUndoCount"><code>H.viewUndoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></li>
+<li><a href="#H-undoIndex"><code>H.undoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></li>
 </ul>
 </li>
 <li><a href="redo">Redo</a><ul>
-<li><a href="#H-redo"><code>H.redo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-redoCount"><code>H.redoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-redoForget"><code>H.redoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-viewRedoCount"><code>H.viewRedoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></li>
+<li><a href="#H-redoIndex"><code>H.redoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></li>
 </ul>
 </li>
 <li><a href="#time-travel">Time travel</a><ul>
 <li><a href="#H-count"><code>H.count(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-index"><code>H.index(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-setIndex"><code>H.setIndex(number, history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
-<li><a href="#H-viewIndex"><code>H.viewIndex ~&gt; lens</code></a> <small><sup>v0.1.0</sup></small></li>
+<li><a href="#H-index"><code>H.index ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></li>
 </ul>
 </li>
 </ul>
@@ -95,8 +88,8 @@ through the given sequence of functions:</p>
 <h4><a id="H-init"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-init">■</a> <a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.init</code> creates a new history state object with the given initial <code>value</code>.  The
 named parameters, <code>maxCount</code>, <code>replacePeriod</code>, and <code>pushEquals</code>, are optional
-and control how history is updated when the state is modified using
-<a href="#H-setPresent"><code>H.setPresent</code></a> or via <a href="#H-viewPresent"><code>H.viewPresent</code></a>.</p>
+and control how history is updated when the state is modified through
+<a href="#H-present"><code>H.present</code></a>.</p>
 <ul>
 <li><code>maxCount</code> defaults to <code>2^31-1</code> and specifies the maximum number of entries to
 keep in history.</li>
@@ -106,7 +99,10 @@ is equal to the present value updates history or not.</li>
 which an update replaces the present value without adding history.</li>
 </ul>
 <p>For example:</p>
-<pre><code class="hljs lang-js">H.init({}, 101)
+<pre><code class="hljs lang-js">thru(
+  H.init({}, 101),
+  L.get(H.present)
+)
 
 </code></pre>
 <p>The <code>history</code> data type should be considered opaque.  However, assuming that
@@ -116,145 +112,73 @@ which an update replaces the present value without adding history.</li>
 <p>Note that <code>H.init</code> is not a pure function, because it takes a timestamp
 underneath.</p>
 <h3><a id="present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#present">■</a> <a href="#present">Present</a></h3>
-<h4><a id="H-present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-present">■</a> <a href="#H-present"><code>H.present(history) ~&gt; value</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.present</code> returns the present value from history.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, 42),
-  H.setPresent(101),
-  H.setPresent(69),
-  H.undo,
-  H.present
-)
-
-</code></pre>
-<h4><a id="H-setPresent"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-setPresent">■</a> <a href="#H-setPresent"><code>H.setPresent(value, history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.setPresent</code> sets the present value of history.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, 42),
-  H.setPresent(101),
-  H.present
-)
-
-</code></pre>
-<p>Note that <code>H.setPresent</code> is not a pure function, because it takes a timestamp
-underneath.</p>
-<h4><a id="H-viewPresent"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewPresent">■</a> <a href="#H-viewPresent"><code>H.viewPresent ~&gt; lens</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.viewPresent</code> is a
+<h4><a id="H-present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-present">■</a> <a href="#H-present"><code>H.present ~&gt; valueLens</code></a> <small><sup>v0.2.0</sup></small></h4>
+<p><code>H.present</code> is a
 <a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
 on the present value of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, 42),
-  L.modify(H.viewPresent, x =&gt; -x),
-  H.present
+  L.modify(H.present, x =&gt; -x),
+  L.get(H.present)
 )
 
 </code></pre>
+<p>Note that modifications through <code>H.present</code> are not referentially transparent
+operations, because setting through <code>H.present</code> takes a timestamp underneath.</p>
 <h3><a id="undo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#undo">■</a> <a href="#undo">Undo</a></h3>
-<h4><a id="H-undo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-undo">■</a> <a href="#H-undo"><code>H.undo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.undo</code> decreases the index of present by one in history if possible.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.undo,
-  H.present
-)
-
-</code></pre>
-<h4><a id="H-undoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-undoCount">■</a> <a href="#H-undoCount"><code>H.undoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.undoCount</code> returns the number of times <a href="#H-undo"><code>H.undo</code></a> has an effect
-starting from present.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.undoCount
-)
-
-</code></pre>
 <h4><a id="H-undoForget"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-undoForget">■</a> <a href="#H-undoForget"><code>H.undoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.undoForget</code> removes all entries prior to present from history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
   H.undoForget,
-  H.undoCount
+  L.get(H.undoIndex)
 )
 
 </code></pre>
-<h4><a id="H-viewUndoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewUndoCount">■</a> <a href="#H-viewUndoCount"><code>H.viewUndoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></h4>
-<p><code>H.viewUndoCount</code> is a
+<h4><a id="H-undoIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-undoIndex">■</a> <a href="#H-undoIndex"><code>H.undoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
+<p><code>H.undoIndex</code> is a
 <a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
-on the undo count of history.</p>
+on the undo position of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  L.modify(H.viewUndoCount, n =&gt; n-1),
-  H.present
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
+  L.modify(H.undoIndex, n =&gt; n-1),
+  L.get(H.present)
 )
 
 </code></pre>
 <h3><a id="redo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#redo">■</a> <a href="redo">Redo</a></h3>
-<h4><a id="H-redo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redo">■</a> <a href="#H-redo"><code>H.redo(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.redo</code> increases the index of present by one in history is possible.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.setIndex(0),
-  H.redo,
-  H.present
-)
-
-</code></pre>
-<h4><a id="H-redoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redoCount">■</a> <a href="#H-redoCount"><code>H.redoCount(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.redoCount</code> returns the number of times <a href="#H-redo"><code>H.redo</code></a> has an effect
-starting from present.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.setIndex(0),
-  H.redoCount
-)
-
-</code></pre>
 <h4><a id="H-redoForget"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redoForget">■</a> <a href="#H-redoForget"><code>H.redoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.redoForget</code> removes all entries following present from history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.setIndex(0),
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
+  L.set(H.index, 0),
   H.redoForget,
-  H.redoCount
+  L.get(H.redoIndex)
 )
 
 </code></pre>
-<h4><a id="H-viewRedoCount"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewRedoCount">■</a> <a href="#H-viewRedoCount"><code>H.viewRedoCount(history) ~&gt; lens</code></a> <small><sup>v0.1.1</sup></small></h4>
-<p><code>H.viewRedoCount</code> is a
+<h4><a id="H-redoIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redoIndex">■</a> <a href="#H-redoIndex"><code>H.redoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
+<p><code>H.redoIndex</code> is a
 <a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
-on the redo count of history.</p>
+on the redo position of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.setIndex(0),
-  L.modify(H.viewRedoCount, n =&gt; n-1),
-  H.present
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
+  L.set(H.index, 0),
+  L.modify(H.redoIndex, n =&gt; n-1),
+  L.get(H.present)
 )
 
 </code></pre>
@@ -264,46 +188,23 @@ on the redo count of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
   H.count
 )
 
 </code></pre>
-<h4><a id="H-index"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-index">■</a> <a href="#H-index"><code>H.index(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.index</code> returns the index of present in history.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.index
-)
-
-</code></pre>
-<h4><a id="H-setIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-setIndex">■</a> <a href="#H-setIndex"><code>H.setIndex(number, history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.setIndex</code> sets the index of present in history.</p>
-<p>For example:</p>
-<pre><code class="hljs lang-js">thru(
-  H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  H.setIndex(1),
-  H.present
-)
-
-</code></pre>
-<h4><a id="H-viewIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-viewIndex">■</a> <a href="#H-viewIndex"><code>H.viewIndex ~&gt; lens</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.viewIndex</code> is a
+<h4><a id="H-index"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-index">■</a> <a href="#H-index"><code>H.index ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
+<p><code>H.index</code> is a
 <a href="https://github.com/calmm-js/partial.lenses/#partial-lenses">lens</a> that focuses
 on the index of present of history.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
-  H.setPresent(&#39;2nd&#39;),
-  H.setPresent(&#39;3rd&#39;),
-  L.set(H.viewIndex, 1),
-  H.present
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
+  L.set(H.index, 1),
+  L.get(H.present)
 )
 
 </code></pre>

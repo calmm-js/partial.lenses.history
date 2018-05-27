@@ -19,11 +19,11 @@ history are either `O(1)` or `O(log n)`.  See this live
   * [Present](#present)
     * [`H.present ~> valueLens`](#H-present) <small><sup>v0.2.0</sup></small>
   * [Undo](#undo)
-    * [`H.undoIndex ~> numberLens`](#H-undoIndex) <small><sup>v0.2.0</sup></small>
     * [`H.undoForget(history) ~> history`](#H-undoForget) <small><sup>v0.1.0</sup></small>
+    * [`H.undoIndex ~> numberLens`](#H-undoIndex) <small><sup>v0.2.0</sup></small>
   * [Redo](redo)
-    * [`H.redoIndex ~> numberLens`](#H-redoIndex) <small><sup>v0.2.0</sup></small>
     * [`H.redoForget(history) ~> history`](#H-redoForget) <small><sup>v0.1.0</sup></small>
+    * [`H.redoIndex ~> numberLens`](#H-redoIndex) <small><sup>v0.2.0</sup></small>
   * [Time travel](#time-travel)
     * [`H.count(history) ~> number`](#H-count) <small><sup>v0.1.0</sup></small>
     * [`H.index ~> numberLens`](#H-index) <small><sup>v0.2.0</sup></small>
@@ -109,6 +109,23 @@ operations, because setting through `H.present` takes a timestamp underneath.
 
 ### <a id="undo"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#undo) [Undo](#undo)
 
+#### <a id="H-undoForget"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-undoForget) [`H.undoForget(history) ~> history`](#H-undoForget) <small><sup>v0.1.0</sup></small>
+
+`H.undoForget` removes all entries prior to present from history.
+
+For example:
+
+```js
+thru(
+  H.init({}, '1st'),
+  L.set(H.present, '2nd'),
+  L.set(H.present, '3rd'),
+  H.undoForget,
+  L.get(H.undoIndex)
+)
+// 0
+```
+
 #### <a id="H-undoIndex"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-undoIndex) [`H.undoIndex ~> numberLens`](#H-undoIndex) <small><sup>v0.2.0</sup></small>
 
 `H.undoIndex` is a
@@ -128,9 +145,11 @@ thru(
 // '2nd'
 ```
 
-#### <a id="H-undoForget"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-undoForget) [`H.undoForget(history) ~> history`](#H-undoForget) <small><sup>v0.1.0</sup></small>
+### <a id="redo"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#redo) [Redo](redo)
 
-`H.undoForget` removes all entries prior to present from history.
+#### <a id="H-redoForget"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-redoForget) [`H.redoForget(history) ~> history`](#H-redoForget) <small><sup>v0.1.0</sup></small>
+
+`H.redoForget` removes all entries following present from history.
 
 For example:
 
@@ -139,13 +158,12 @@ thru(
   H.init({}, '1st'),
   L.set(H.present, '2nd'),
   L.set(H.present, '3rd'),
-  H.undoForget,
-  L.get(H.undoIndex)
+  L.set(H.index, 0),
+  H.redoForget,
+  L.get(H.redoIndex)
 )
 // 0
 ```
-
-### <a id="redo"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#redo) [Redo](redo)
 
 #### <a id="H-redoIndex"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-redoIndex) [`H.redoIndex ~> numberLens`](#H-redoIndex) <small><sup>v0.2.0</sup></small>
 
@@ -165,24 +183,6 @@ thru(
   L.get(H.present)
 )
 // '2nd'
-```
-
-#### <a id="H-redoForget"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-redoForget) [`H.redoForget(history) ~> history`](#H-redoForget) <small><sup>v0.1.0</sup></small>
-
-`H.redoForget` removes all entries following present from history.
-
-For example:
-
-```js
-thru(
-  H.init({}, '1st'),
-  L.set(H.present, '2nd'),
-  L.set(H.present, '3rd'),
-  L.set(H.index, 0),
-  H.redoForget,
-  L.get(H.redoIndex)
-)
-// 0
 ```
 
 ### <a id="time-travel"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#time-travel) [Time travel](#time-travel)

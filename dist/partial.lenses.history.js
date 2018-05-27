@@ -107,12 +107,6 @@
 
   //
 
-  var dec = function dec(x) {
-    return x - 1;
-  };
-
-  //
-
   var construct$1 = function construct(i, t, v, c) {
     return { i: i, t: t, v: v, c: c };
   };
@@ -158,33 +152,29 @@
   var count = function count(history) {
     return length(history.v);
   };
-  var index = function index(history) {
+
+  var index = /*#__PURE__*/L.lens(function (history) {
     return history.i;
-  };
-  var setIndex = /*#__PURE__*/I.curry(setIndexU);
-  var viewIndex = /*#__PURE__*/L.lens(index, setIndexU);
+  }, setIndexU);
 
   // Present
 
-  var present = function present(history) {
+  var present = /*#__PURE__*/L.lens(function (history) {
     return nth(history.i, history.v);
-  };
-  var setPresent = /*#__PURE__*/I.curry(setPresentU);
-  var viewPresent = /*#__PURE__*/L.lens(present, setPresentU);
-  var undo = /*#__PURE__*/L.modify(viewIndex, dec);
+  }, setPresentU);
+
   var undoForget = function undoForget(history) {
     return construct$1(0, drop(history.i, history.t), drop(history.i, history.v), history.c);
   };
 
   // Redo
 
-  var redoCount = function redoCount(history) {
+  var redoIndex = /*#__PURE__*/L.lens(function (history) {
     return count(history) - 1 - history.i;
-  };
-  var viewRedoCount = /*#__PURE__*/L.lens(redoCount, function (index, history) {
-    return setIndex(count(history) - 1 - index, history);
+  }, function (index, history) {
+    return setIndexU(count(history) - 1 - index, history);
   });
-  var redo = /*#__PURE__*/L.modify(viewRedoCount, dec);
+
   var redoForget = function redoForget(history) {
     return construct$1(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
   };
@@ -192,18 +182,10 @@
   exports.init = init;
   exports.count = count;
   exports.index = index;
-  exports.setIndex = setIndex;
-  exports.viewIndex = viewIndex;
   exports.present = present;
-  exports.setPresent = setPresent;
-  exports.viewPresent = viewPresent;
-  exports.undoCount = index;
-  exports.viewUndoCount = viewIndex;
-  exports.undo = undo;
+  exports.undoIndex = index;
   exports.undoForget = undoForget;
-  exports.redoCount = redoCount;
-  exports.viewRedoCount = viewRedoCount;
-  exports.redo = redo;
+  exports.redoIndex = redoIndex;
   exports.redoForget = redoForget;
 
   Object.defineProperty(exports, '__esModule', { value: true });

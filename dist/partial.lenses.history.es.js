@@ -1,5 +1,5 @@
-import { acyclicEqualsU, curryN, curry } from 'infestines';
-import { lens, modify } from 'partial.lenses';
+import { acyclicEqualsU, curryN } from 'infestines';
+import { lens } from 'partial.lenses';
 
 var BITS = 4;
 var SINGLE = 1 << BITS;
@@ -104,12 +104,6 @@ var take = function take(n, trie) {
 
 //
 
-var dec = function dec(x) {
-  return x - 1;
-};
-
-//
-
 var construct$1 = function construct(i, t, v, c) {
   return { i: i, t: t, v: v, c: c };
 };
@@ -155,35 +149,31 @@ var init = /*#__PURE__*/curryN(2, function (config) {
 var count = function count(history) {
   return length(history.v);
 };
-var index = function index(history) {
+
+var index = /*#__PURE__*/lens(function (history) {
   return history.i;
-};
-var setIndex = /*#__PURE__*/curry(setIndexU);
-var viewIndex = /*#__PURE__*/lens(index, setIndexU);
+}, setIndexU);
 
 // Present
 
-var present = function present(history) {
+var present = /*#__PURE__*/lens(function (history) {
   return nth(history.i, history.v);
-};
-var setPresent = /*#__PURE__*/curry(setPresentU);
-var viewPresent = /*#__PURE__*/lens(present, setPresentU);
-var undo = /*#__PURE__*/modify(viewIndex, dec);
+}, setPresentU);
+
 var undoForget = function undoForget(history) {
   return construct$1(0, drop(history.i, history.t), drop(history.i, history.v), history.c);
 };
 
 // Redo
 
-var redoCount = function redoCount(history) {
+var redoIndex = /*#__PURE__*/lens(function (history) {
   return count(history) - 1 - history.i;
-};
-var viewRedoCount = /*#__PURE__*/lens(redoCount, function (index, history) {
-  return setIndex(count(history) - 1 - index, history);
+}, function (index, history) {
+  return setIndexU(count(history) - 1 - index, history);
 });
-var redo = /*#__PURE__*/modify(viewRedoCount, dec);
+
 var redoForget = function redoForget(history) {
   return construct$1(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
 };
 
-export { init, count, index, setIndex, viewIndex, present, setPresent, viewPresent, index as undoCount, viewIndex as viewUndoCount, undo, undoForget, redoCount, viewRedoCount, redo, redoForget };
+export { init, count, index, present, index as undoIndex, undoForget, redoIndex, redoForget };
