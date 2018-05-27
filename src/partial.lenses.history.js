@@ -1,7 +1,7 @@
 import * as I from 'infestines'
 import * as L from 'partial.lenses'
 
-import * as S from './seq'
+import * as S from './trie'
 
 //
 
