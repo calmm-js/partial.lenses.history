@@ -5,10 +5,6 @@ import * as S from './trie'
 
 //
 
-const dec = x => x - 1
-
-//
-
 const construct = (i, t, v, c) => ({i, t, v, c})
 
 //
@@ -57,21 +53,20 @@ export const init = I.curryN(2, config => {
 // Time travel
 
 export const count = history => S.length(history.v)
-export const index = history => history.i
-export const setIndex = I.curry(setIndexU)
-export const viewIndex = L.lens(index, setIndexU)
+
+export const index = L.lens(history => history.i, setIndexU)
 
 // Present
 
-export const present = history => S.nth(history.i, history.v)
-export const setPresent = I.curry(setPresentU)
-export const viewPresent = L.lens(present, setPresentU)
+export const present = L.lens(
+  history => S.nth(history.i, history.v),
+  setPresentU
+)
 
 // Undo
 
-export {index as undoCount}
-export {viewIndex as viewUndoCount}
-export const undo = L.modify(viewIndex, dec)
+export {index as undoIndex}
+
 export const undoForget = history =>
   construct(
     0,
@@ -82,11 +77,11 @@ export const undoForget = history =>
 
 // Redo
 
-export const redoCount = history => count(history) - 1 - history.i
-export const viewRedoCount = L.lens(redoCount, (index, history) =>
-  setIndex(count(history) - 1 - index, history)
+export const redoIndex = L.lens(
+  history => count(history) - 1 - history.i,
+  (index, history) => setIndexU(count(history) - 1 - index, history)
 )
-export const redo = L.modify(viewRedoCount, dec)
+
 export const redoForget = history =>
   construct(
     history.i,

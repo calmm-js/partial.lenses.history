@@ -34,17 +34,17 @@ const testEq = (expect, thunk) =>
 
 describe('History', () => {
   const getState = state => ({
-    undoCount: H.undoCount(state),
-    redoCount: H.redoCount(state),
+    undoIndex: L.get(H.undoIndex, state),
+    redoIndex: L.get(H.redoIndex, state),
     count: H.count(state),
-    present: H.present(state),
-    index: H.index(state)
+    present: L.get(H.present, state),
+    index: L.get(H.index, state)
   })
 
   testEq(
     {
-      undoCount: 0,
-      redoCount: 0,
+      undoIndex: 0,
+      redoIndex: 0,
       count: 1,
       present: 101,
       index: 0
@@ -52,16 +52,16 @@ describe('History', () => {
     () => I.seq(H.init(undefined, 101), H.undoForget, H.redoForget, getState)
   )
 
-  testEq({undoCount: 1, redoCount: 1, count: 3, present: 42, index: 1}, () =>
+  testEq({undoIndex: 1, redoIndex: 1, count: 3, present: 42, index: 1}, () =>
     I.seq(
       H.init({maxCount: 3}, 101),
-      H.setPresent(69),
-      H.setPresent(42),
-      L.set(H.viewPresent, 42),
-      L.set(H.viewPresent, 69),
-      H.undo,
-      H.undo,
-      H.redo,
+      L.set(H.present, 69),
+      L.set(H.present, 42),
+      L.set(H.present, 42),
+      L.set(H.present, 69),
+      L.modify(H.undoIndex, R.dec),
+      L.modify(H.undoIndex, R.dec),
+      L.modify(H.redoIndex, R.dec),
       getState
     )
   )
@@ -70,22 +70,25 @@ describe('History', () => {
 
   testEq([2, 3, 5], async () => {
     let h = H.init({replacePeriod: 10, pushEquals: true}, 1)
-    h = H.setPresent(2, h)
+    h = L.set(H.present, 2, h)
     await delay(20)
-    h = H.setPresent(3, h)
-    h = H.setPresent(3, h)
+    h = L.set(H.present, 3, h)
+    h = L.set(H.present, 3, h)
     await delay(20)
-    h = H.setPresent(4, h)
-    h = H.setPresent(5, h)
-    return R.map(i => H.present(H.setIndex(i, h)), R.range(0, H.count(h)))
+    h = L.set(H.present, 4, h)
+    h = L.set(H.present, 5, h)
+    return R.map(
+      i => L.get(H.present, L.set(H.index, i, h)),
+      R.range(0, H.count(h))
+    )
   })
 
   testEq(16000, () => {
     let h = H.init({maxCount: 5000}, 1)
-    for (let i = 2; i < 20000; ++i) h = H.setPresent(i, h)
-    h = H.setIndex(1000, h)
+    for (let i = 2; i < 20000; ++i) h = L.set(H.present, i, h)
+    h = L.set(H.index, 1000, h)
     h = H.redoForget(h)
     h = H.undoForget(h)
-    return H.present(h)
+    return L.get(H.present, h)
   })
 })
