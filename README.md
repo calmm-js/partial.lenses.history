@@ -1,7 +1,8 @@
 # <a id="partial-lenses-history"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#) [Partial Lenses History](#partial-lenses-history) &middot; [![Gitter](https://img.shields.io/gitter/room/calmm-js/chat.js.svg)](https://gitter.im/calmm-js/chat) [![GitHub stars](https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social)](https://github.com/calmm-js/partial.lenses.history) [![npm](https://img.shields.io/npm/dm/partial.lenses.history.svg)](https://www.npmjs.com/package/partial.lenses.history)
 
 Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.  See this live
+Undo-Redo history.  History can be serialized as JSON and all operations on
+history are either `O(1)` or `O(log n)`.  See this live
 [CodeSandbox](https://codesandbox.io/s/2rq54pgrp) for an example.
 
 [![npm version](https://badge.fury.io/js/partial.lenses.history.svg)](http://badge.fury.io/js/partial.lenses.history)
