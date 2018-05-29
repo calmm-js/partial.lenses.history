@@ -8,6 +8,7 @@
       'https://unpkg.com/babel-polyfill/dist/polyfill.min.js',
       'https://unpkg.com/infestines/dist/infestines.js',
       'https://unpkg.com/partial.lenses/dist/partial.lenses.js',
+      'https://unpkg.com/partial.lenses.validation/dist/partial.lenses.validation.js',
       'partial.lenses.history.js',
       'https://unpkg.com/ramda/dist/ramda.min.js'
     ],

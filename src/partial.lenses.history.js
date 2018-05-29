@@ -1,91 +1,62 @@
-import * as I from 'infestines'
-import * as L from 'partial.lenses'
+import * as I from './ext/infestines'
+import * as V from './ext/partial.lenses.validation'
 
-import * as S from './trie'
+import * as H from './core'
 
-//
+const C =
+  process.env.NODE_ENV === 'production'
+    ? x => x
+    : (x, c) => {
+        const v = V.validate(c, x)
+        return I.isFunction(x) ? I.arityN(x.length, v) : v
+      }
 
-const construct = (i, t, v, c) => ({i, t, v, c})
+const trie = V.props({l: V.integer, u: V.integer, r: V.array})
 
-//
+const history = V.props({
+  i: V.integer,
+  t: trie,
+  v: trie,
+  c: V.props({p: V.integer, e: V.boolean, m: V.integer})
+})
 
-function setPresentU(value, history) {
-  const v = history.v
-  const i = history.i
-  const c = history.c
-  if (c.e) {
-    if (I.acyclicEqualsU(S.nth(i, v), value)) {
-      return history
-    }
-  }
-  const t = history.t
-  const now = Date.now()
-  const j = i + (c.p <= now - S.nth(i, t))
-  const j0 = Math.max(0, j - c.m)
-  return construct(
-    j - j0,
-    S.append(now, S.slice(j0, j, t)),
-    S.append(value, S.slice(j0, j, v)),
-    c
-  )
-}
-
-const setIndexU = (index, history) =>
-  construct(
-    Math.max(0, Math.min(index, count(history) - 1)),
-    history.t,
-    history.v,
-    history.c
-  )
+const lens = (outer, inner) =>
+  V.fn([outer, V.any, V.any, V.fn([inner, V.any], V.any)], V.any)
 
 // Creating
 
-export const init = I.curryN(2, config => {
-  config = config || 0
-  const c = {
-    p: config.replacePeriod || 0,
-    e: !config.pushEquals,
-    m: Math.max(1, config.maxCount || -1 >>> 1) - 1
-  }
-  return value => construct(0, S.of(Date.now()), S.of(value), c)
-})
-
-// Time travel
-
-export const count = history => S.length(history.v)
-
-export const index = L.lens(history => history.i, setIndexU)
+export const init = C(
+  H.init,
+  V.fn(
+    [
+      V.optional(
+        V.props({
+          maxCount: V.optional(V.integer),
+          pushEquals: V.optional(V.boolean),
+          replacePeriod: V.optional(V.integer)
+        })
+      ),
+      V.any
+    ],
+    history
+  )
+)
 
 // Present
 
-export const present = L.lens(
-  history => S.nth(history.i, history.v),
-  setPresentU
-)
+export const present = C(H.present, lens(history, V.any))
 
 // Undo
 
-export {index as undoIndex}
-
-export const undoForget = history =>
-  construct(
-    0,
-    S.drop(history.i, history.t),
-    S.drop(history.i, history.v),
-    history.c
-  )
+export const undoIndex = C(H.undoIndex, lens(history, V.integer))
+export const undoForget = C(H.undoForget, V.fn([history], history))
 
 // Redo
 
-export const redoIndex = L.lens(
-  history => count(history) - 1 - history.i,
-  (index, history) => setIndexU(count(history) - 1 - index, history)
-)
+export const redoIndex = C(H.redoIndex, lens(history, V.integer))
+export const redoForget = C(H.redoForget, V.fn([history], history))
 
-export const redoForget = history =>
-  construct(
-    history.i,
-    S.take(history.i + 1, history.t),
-    S.take(history.i + 1, history.v),
-    history.c
-  )
+// Time travel
+
+export const count = C(H.count, V.fn([history], V.integer))
+export const index = C(H.index, lens(history, V.integer))

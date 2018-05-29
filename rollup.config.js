@@ -3,7 +3,11 @@ import nodeResolve from 'rollup-plugin-node-resolve'
 import replace from 'rollup-plugin-replace'
 import {uglify} from 'rollup-plugin-uglify'
 
-const globals = {infestines: 'I', 'partial.lenses': 'L'}
+const globals = {
+  infestines: 'I',
+  'partial.lenses': 'L',
+  'partial.lenses.validation': 'V'
+}
 
 const build = ({NODE_ENV, format, suffix}) => ({
   external: Object.keys(globals),
