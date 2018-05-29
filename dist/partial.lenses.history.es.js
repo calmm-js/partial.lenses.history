@@ -1,5 +1,18 @@
-import { acyclicEqualsU, curryN } from 'infestines';
+import { isArray, isFunction, arityN, curryN, acyclicEqualsU } from 'infestines';
+import { accept, validate, props, optional, freeFn, args } from 'partial.lenses.validation';
 import { lens } from 'partial.lenses';
+
+var isBoolean = function isBoolean(x) {
+  return typeof x === 'boolean';
+};
+
+var fn = function fn(args$$1, res) {
+  return freeFn(args.apply(null, args$$1), res);
+};
+
+var integer = function integer(x) {
+  return Number.isInteger(x);
+};
 
 var BITS = 4;
 var SINGLE = 1 << BITS;
@@ -176,4 +189,51 @@ var redoForget = function redoForget(history) {
   return construct$1(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
 };
 
-export { init, count, index, present, index as undoIndex, undoForget, redoIndex, redoForget };
+var C = process.env.NODE_ENV === 'production' ? function (x) {
+  return x;
+} : function (x, c) {
+  var v = validate(c, x);
+  return isFunction(x) ? arityN(x.length, v) : v;
+};
+
+var trie = /*#__PURE__*/props({ l: integer, u: integer, r: isArray });
+
+var history = /*#__PURE__*/props({
+  i: integer,
+  t: trie,
+  v: trie,
+  c: /*#__PURE__*/props({ p: integer, e: isBoolean, m: integer })
+});
+
+var lens$1 = function lens$$1(outer, inner) {
+  return fn([outer, accept, accept, fn([inner, accept], accept)], accept);
+};
+
+// Creating
+
+var init$1 = /*#__PURE__*/C(init, /*#__PURE__*/fn([/*#__PURE__*/optional( /*#__PURE__*/props({
+  maxCount: /*#__PURE__*/optional(integer),
+  pushEquals: /*#__PURE__*/optional(isBoolean),
+  replacePeriod: /*#__PURE__*/optional(integer)
+})), accept], history));
+
+// Present
+
+var present$1 = /*#__PURE__*/C(present, /*#__PURE__*/lens$1(history, accept));
+
+// Undo
+
+var undoIndex = /*#__PURE__*/C(index, /*#__PURE__*/lens$1(history, integer));
+var undoForget$1 = /*#__PURE__*/C(undoForget, /*#__PURE__*/fn([history], history));
+
+// Redo
+
+var redoIndex$1 = /*#__PURE__*/C(redoIndex, /*#__PURE__*/lens$1(history, integer));
+var redoForget$1 = /*#__PURE__*/C(redoForget, /*#__PURE__*/fn([history], history));
+
+// Time travel
+
+var count$1 = /*#__PURE__*/C(count, /*#__PURE__*/fn([history], integer));
+var index$1 = /*#__PURE__*/C(index, /*#__PURE__*/lens$1(history, integer));
+
+export { init$1 as init, present$1 as present, undoIndex, undoForget$1 as undoForget, redoIndex$1 as redoIndex, redoForget$1 as redoForget, count$1 as count, index$1 as index };

@@ -1,6 +1,6 @@
 {
   "name": "partial.lenses.history",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Partial Lenses History is a JavaScript library for Undo-Redo",
   "module": "dist/partial.lenses.history.es.js",
   "main": "dist/partial.lenses.history.cjs.js",
@@ -71,7 +71,7 @@
     "mocha": "^5.2.0",
     "nyc": "^11.8.0",
     "ramda": "^0.25.0",
-    "rollup": "^0.59.3",
+    "rollup": "^0.59.4",
     "rollup-plugin-babel": "^3.0.4",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-replace": "^2.0.0",

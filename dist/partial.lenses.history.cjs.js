@@ -3,7 +3,20 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 var I = require('infestines');
+var V = require('partial.lenses.validation');
 var L = require('partial.lenses');
+
+var isBoolean = function isBoolean(x) {
+  return typeof x === 'boolean';
+};
+
+var fn = function fn(args, res) {
+  return V.freeFn(V.args.apply(null, args), res);
+};
+
+var integer = function integer(x) {
+  return Number.isInteger(x);
+};
 
 var BITS = 4;
 var SINGLE = 1 << BITS;
@@ -180,11 +193,58 @@ var redoForget = function redoForget(history) {
   return construct$1(history.i, take(history.i + 1, history.t), take(history.i + 1, history.v), history.c);
 };
 
-exports.init = init;
-exports.count = count;
-exports.index = index;
-exports.present = present;
-exports.undoIndex = index;
-exports.undoForget = undoForget;
-exports.redoIndex = redoIndex;
-exports.redoForget = redoForget;
+var C = process.env.NODE_ENV === 'production' ? function (x) {
+  return x;
+} : function (x, c) {
+  var v = V.validate(c, x);
+  return I.isFunction(x) ? I.arityN(x.length, v) : v;
+};
+
+var trie = /*#__PURE__*/V.props({ l: integer, u: integer, r: I.isArray });
+
+var history = /*#__PURE__*/V.props({
+  i: integer,
+  t: trie,
+  v: trie,
+  c: /*#__PURE__*/V.props({ p: integer, e: isBoolean, m: integer })
+});
+
+var lens = function lens(outer, inner) {
+  return fn([outer, V.accept, V.accept, fn([inner, V.accept], V.accept)], V.accept);
+};
+
+// Creating
+
+var init$1 = /*#__PURE__*/C(init, /*#__PURE__*/fn([/*#__PURE__*/V.optional( /*#__PURE__*/V.props({
+  maxCount: /*#__PURE__*/V.optional(integer),
+  pushEquals: /*#__PURE__*/V.optional(isBoolean),
+  replacePeriod: /*#__PURE__*/V.optional(integer)
+})), V.accept], history));
+
+// Present
+
+var present$1 = /*#__PURE__*/C(present, /*#__PURE__*/lens(history, V.accept));
+
+// Undo
+
+var undoIndex = /*#__PURE__*/C(index, /*#__PURE__*/lens(history, integer));
+var undoForget$1 = /*#__PURE__*/C(undoForget, /*#__PURE__*/fn([history], history));
+
+// Redo
+
+var redoIndex$1 = /*#__PURE__*/C(redoIndex, /*#__PURE__*/lens(history, integer));
+var redoForget$1 = /*#__PURE__*/C(redoForget, /*#__PURE__*/fn([history], history));
+
+// Time travel
+
+var count$1 = /*#__PURE__*/C(count, /*#__PURE__*/fn([history], integer));
+var index$1 = /*#__PURE__*/C(index, /*#__PURE__*/lens(history, integer));
+
+exports.init = init$1;
+exports.present = present$1;
+exports.undoIndex = undoIndex;
+exports.undoForget = undoForget$1;
+exports.redoIndex = redoIndex$1;
+exports.redoForget = redoForget$1;
+exports.count = count$1;
+exports.index = index$1;
