@@ -1,4 +1,4 @@
-() => [
+;() => [
   {
     user: 'calmm-js',
     project: 'partial.lenses.history',
@@ -10,7 +10,7 @@
       'https://unpkg.com/partial.lenses/dist/partial.lenses.js',
       'https://unpkg.com/partial.lenses.validation/dist/partial.lenses.validation.js',
       'partial.lenses.history.js',
-      'https://unpkg.com/ramda/dist/ramda.min.js'
+      'https://unpkg.com/ramda/dist/ramda.js'
     ],
     source: 'README.md',
     target: 'index.html',
