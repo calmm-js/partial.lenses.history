@@ -40,7 +40,7 @@ const setIndexU = (index, history) =>
 
 // Creating
 
-export const init = I.curryN(2, config => {
+export const init = I.curryN(2, function init(config) {
   config = config || 0
   const c = {
     p: config.replacePeriod || 0,
@@ -54,14 +54,15 @@ export const init = I.curryN(2, config => {
 
 export const count = history => S.length(history.v)
 
-export const index = L.lens(history => history.i, setIndexU)
+export const index = L.lens(function index(history) {
+  return history.i
+}, setIndexU)
 
 // Present
 
-export const present = L.lens(
-  history => S.nth(history.i, history.v),
-  setPresentU
-)
+export const present = L.lens(function present(history) {
+  return S.nth(history.i, history.v)
+}, setPresentU)
 
 // Undo
 
@@ -78,7 +79,9 @@ export const undoForget = history =>
 // Redo
 
 export const redoIndex = L.lens(
-  history => count(history) - 1 - history.i,
+  function redoIndex(history) {
+    return count(history) - 1 - history.i
+  },
   (index, history) => setIndexU(count(history) - 1 - index, history)
 )
 

@@ -145,7 +145,7 @@ var setIndexU = function setIndexU(index, history) {
 
 // Creating
 
-var init = /*#__PURE__*/curryN(2, function (config) {
+var init = /*#__PURE__*/curryN(2, function init(config) {
   config = config || 0;
   var c = {
     p: config.replacePeriod || 0,
@@ -163,13 +163,13 @@ var count = function count(history) {
   return length(history.v);
 };
 
-var index = /*#__PURE__*/lens(function (history) {
+var index = /*#__PURE__*/lens(function index(history) {
   return history.i;
 }, setIndexU);
 
 // Present
 
-var present = /*#__PURE__*/lens(function (history) {
+var present = /*#__PURE__*/lens(function present(history) {
   return nth(history.i, history.v);
 }, setPresentU);
 
@@ -179,7 +179,7 @@ var undoForget = function undoForget(history) {
 
 // Redo
 
-var redoIndex = /*#__PURE__*/lens(function (history) {
+var redoIndex = /*#__PURE__*/lens(function redoIndex(history) {
   return count(history) - 1 - history.i;
 }, function (index, history) {
   return setIndexU(count(history) - 1 - index, history);
