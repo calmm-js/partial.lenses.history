@@ -73,17 +73,14 @@ history are either <code>O(1)</code> or <code>O(log n)</code>.  See this live
 <h2><a id="reference"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#reference">■</a> <a href="#reference">Reference</a></h2>
 <p>The <a href="https://wiki.haskell.org/Combinator">combinators</a> provided by this library
 are available as named imports.  Typically one just imports the library as:</p>
-<pre><code class="hljs lang-jsx">import * as H from &#39;partial.lenses.history&#39;
-</code></pre>
+<pre><code class="hljs lang-jsx">import * as H from &#39;partial.lenses.history&#39;</code></pre>
 <p>The examples also use the <a href="https://github.com/calmm-js/partial.lenses">Partial
 Lenses</a> library imported as</p>
-<pre><code class="hljs lang-jsx">import * as L from &#39;partial.lenses&#39;
-</code></pre>
+<pre><code class="hljs lang-jsx">import * as L from &#39;partial.lenses&#39;</code></pre>
 <p>and the following helper function,
 <a href="https://github.com/calmm-js/karet.util/#U-thru"><code>thru</code></a>, that pipes a value
 through the given sequence of functions:</p>
-<pre><code class="hljs lang-js">var thru = (x, ...fns) =&gt; fns.reduce((x, fn) =&gt; fn(x), x)
-</code></pre>
+<pre><code class="hljs lang-js">var thru = (x, ...fns) =&gt; fns.reduce((x, fn) =&gt; fn(x), x)</code></pre>
 <h3><a id="creating"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#creating">Creating</a></h3>
 <h4><a id="H-init"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-init">■</a> <a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.init</code> creates a new history state object with the given initial <code>value</code>.  The
@@ -103,7 +100,6 @@ which an update replaces the present value without adding history.</li>
   H.init({}, 101),
   L.get(H.present)
 )
-
 </code></pre>
 <p>The <code>history</code> data type should be considered opaque.  However, assuming that
 <code>JSON.parse(JSON.stringify(v))</code> is considered equivalent to <code>v</code> for any value
@@ -122,7 +118,6 @@ on the present value of history.</p>
   L.modify(H.present, x =&gt; -x),
   L.get(H.present)
 )
-
 </code></pre>
 <p>Note that modifications through <code>H.present</code> are not referentially transparent
 operations, because setting through <code>H.present</code> takes a timestamp underneath.</p>
@@ -137,7 +132,6 @@ operations, because setting through <code>H.present</code> takes a timestamp und
   H.undoForget,
   L.get(H.undoIndex)
 )
-
 </code></pre>
 <h4><a id="H-undoIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-undoIndex">■</a> <a href="#H-undoIndex"><code>H.undoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
 <p><code>H.undoIndex</code> is a
@@ -151,7 +145,6 @@ on the undo position of history.</p>
   L.modify(H.undoIndex, n =&gt; n-1),
   L.get(H.present)
 )
-
 </code></pre>
 <h3><a id="redo"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#redo">■</a> <a href="redo">Redo</a></h3>
 <h4><a id="H-redoForget"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redoForget">■</a> <a href="#H-redoForget"><code>H.redoForget(history) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
@@ -165,7 +158,6 @@ on the undo position of history.</p>
   H.redoForget,
   L.get(H.redoIndex)
 )
-
 </code></pre>
 <h4><a id="H-redoIndex"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-redoIndex">■</a> <a href="#H-redoIndex"><code>H.redoIndex ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
 <p><code>H.redoIndex</code> is a
@@ -180,7 +172,6 @@ on the redo position of history.</p>
   L.modify(H.redoIndex, n =&gt; n-1),
   L.get(H.present)
 )
-
 </code></pre>
 <h3><a id="time-travel"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#time-travel">■</a> <a href="#time-travel">Time travel</a></h3>
 <h4><a id="H-count"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-count">■</a> <a href="#H-count"><code>H.count(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></h4>
@@ -192,7 +183,6 @@ on the redo position of history.</p>
   L.set(H.present, &#39;3rd&#39;),
   H.count
 )
-
 </code></pre>
 <h4><a id="H-index"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-index">■</a> <a href="#H-index"><code>H.index ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></h4>
 <p><code>H.index</code> is a
@@ -206,7 +196,6 @@ on the index of present of history.</p>
   L.set(H.index, 1),
   L.get(H.present)
 )
-
 </code></pre>
 
     <div class="loading-hidden">
@@ -221,7 +210,7 @@ on the index of present of history.</p>
     <script type="text/javascript" src="https://unpkg.com/partial.lenses/dist/partial.lenses.js"></script>
     <script type="text/javascript" src="https://unpkg.com/partial.lenses.validation/dist/partial.lenses.validation.js"></script>
     <script type="text/javascript" src="partial.lenses.history.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/ramda/dist/ramda.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/ramda/dist/ramda.js"></script>
     <script type="text/javascript" src="fw/klipse-settings.js"></script>
     <script type="text/javascript" src="https://storage.googleapis.com/app.klipse.tech/plugin_prod/js/klipse_plugin.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>

@@ -1,4 +1,4 @@
-import { isArray, isFunction, arityN, curryN, acyclicEqualsU } from 'infestines';
+import { isArray, isFunction, arityN, acyclicEqualsU, curryN } from 'infestines';
 import { accept, validate, props, optional, freeFn, args } from 'partial.lenses.validation';
 import { lens } from 'partial.lenses';
 
