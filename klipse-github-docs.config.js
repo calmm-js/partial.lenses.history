@@ -16,7 +16,7 @@
     target: 'index.html',
     title: 'Partial Lenses History',
     stripComments: true,
-    constToVar: true,
+    constToVar: false,
     menu: true,
     tooltips: true
   }
