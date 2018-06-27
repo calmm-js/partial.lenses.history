@@ -27,6 +27,7 @@ history are either `O(1)` or `O(log n)`.  See this live
   * [Time travel](#time-travel)
     * [`H.count(history) ~> number`](#H-count) <small><sup>v0.1.0</sup></small>
     * [`H.index ~> numberLens`](#H-index) <small><sup>v0.2.0</sup></small>
+    * [`H.indexMax(history) ~> number`](#H-indexMax) <small><sup>v0.2.3</sup></small>
 
 ## <a id="reference"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#reference) [Reference](#reference)
 
@@ -189,7 +190,8 @@ thru(
 
 #### <a id="H-count"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-count) [`H.count(history) ~> number`](#H-count) <small><sup>v0.1.0</sup></small>
 
-`H.count` returns the number of entries in history.
+`H.count` returns the number of entries in history.  See also
+[`H.indexMax`](#H-indexMax).
 
 For example:
 
@@ -220,4 +222,20 @@ thru(
   L.get(H.present)
 )
 // '2nd'
+```
+
+#### <a id="H-indexMax"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-indexMax) [`H.indexMax(history) ~> number`](#H-indexMax) <small><sup>v0.2.3</sup></small>
+
+`H.indexMax` returns the maximum history index.  See also [`H.count`](#H-count).
+
+For example:
+
+```js
+thru(
+  H.init({}, '1st'),
+  L.set(H.present, '2nd'),
+  L.set(H.present, '3rd'),
+  H.indexMax
+)
+// 2
 ```

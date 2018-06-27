@@ -32,7 +32,7 @@ function setPresentU(value, history) {
 
 const setIndexU = (index, history) =>
   construct(
-    Math.max(0, Math.min(index, count(history) - 1)),
+    Math.max(0, Math.min(index, indexMax(history))),
     history.t,
     history.v,
     history.c
@@ -58,6 +58,8 @@ export const index = L.lens(function index(history) {
   return history.i
 }, setIndexU)
 
+export const indexMax = history => S.length(history.v) - 1
+
 // Present
 
 export const present = L.lens(function present(history) {
@@ -80,9 +82,9 @@ export const undoForget = history =>
 
 export const redoIndex = L.lens(
   function redoIndex(history) {
-    return count(history) - 1 - history.i
+    return indexMax(history) - history.i
   },
-  (index, history) => setIndexU(count(history) - 1 - index, history)
+  (index, history) => setIndexU(indexMax(history) - index, history)
 )
 
 export const redoForget = history =>
