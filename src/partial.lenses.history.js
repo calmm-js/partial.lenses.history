@@ -60,3 +60,4 @@ export const redoForget = C(H.redoForget, V.fn([history], history))
 
 export const count = C(H.count, V.fn([history], V.integer))
 export const index = C(H.index, lens(history, V.integer))
+export const indexMax = C(H.indexMax, V.fn([history], V.integer))
