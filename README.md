@@ -2,8 +2,13 @@
 
 Partial Lenses History is a JavaScript library for state manipulation with
 Undo-Redo history.  History can be serialized as JSON and all operations on
-history are either `O(1)` or `O(log n)`.  See this live
-[CodeSandbox](https://codesandbox.io/s/2rq54pgrp) for an example.
+history are either `O(1)` or `O(log n)`.
+
+Examples:
+* The [Basic History / Undo-Redo](https://codesandbox.io/s/y0mzonm98x)
+  CodeSandbox provides a simple example of using this library.
+* The [Form using Context](https://codesandbox.io/s/2rq54pgrp) CodeSandbox also
+  demonstrates this library.
 
 [![npm version](https://badge.fury.io/js/partial.lenses.history.svg)](http://badge.fury.io/js/partial.lenses.history)
 [![Build Status](https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master)](https://travis-ci.org/calmm-js/partial.lenses.history)
