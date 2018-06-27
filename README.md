@@ -77,7 +77,7 @@ create an [atom](https://github.com/calmm-js/kefir.atom) to store the history.
 > this.state = {history: H.init({}, '')}
 > ```
 
-To access the present value from history, one uses the [`H.present`](#-present)
+To access the present value from history, one uses the [`H.present`](#H-present)
 [lens](https://github.com/calmm-js/partial.lenses/#lenses):
 
 ```jsx

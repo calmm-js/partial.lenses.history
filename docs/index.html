@@ -37,8 +37,8 @@ Undo-Redo history.  History can be serialized as JSON and all operations on
 history are either <code>O(1)</code> or <code>O(log n)</code>.</p>
 <p>Examples:</p>
 <ul>
-<li>The <a href="https://codesandbox.io/s/y0mzonm98x">Basic History / Undo-Redo</a>
-CodeSandbox provides a simple example of using this library.</li>
+<li>The <a href="https://codesandbox.io/s/y0mzonm98x">Basic Undo-Redo</a> CodeSandbox
+provides a simple example that is discussed <a href="#a-basic-example">below</a>.</li>
 <li>The <a href="https://codesandbox.io/s/2rq54pgrp">Form using Context</a> CodeSandbox also
 demonstrates this library.</li>
 </ul>
@@ -49,6 +49,7 @@ demonstrates this library.</li>
 <a href="https://david-dm.org/calmm-js/partial.lenses.history?type=dev"><img src="https://david-dm.org/calmm-js/partial.lenses.history/dev-status.svg" alt=""></a></p>
 <h2><a id="contents"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#contents">■</a> <a href="#contents">Contents</a></h2>
 <ul>
+<li><a href="#a-basic-example">A basic example</a></li>
 <li><a href="#reference">Reference</a><ul>
 <li><a href="#creating">Creating</a><ul>
 <li><a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
@@ -77,6 +78,95 @@ demonstrates this library.</li>
 </ul>
 </li>
 </ul>
+<h2><a id="a-basic-example"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#a-basic-example">■</a> <a href="#a-basic-example">A basic example</a></h2>
+<p>This section describes the <a href="https://codesandbox.io/s/y0mzonm98x">Basic
+Undo-Redo</a> CodeSandbox example that was
+written to demonstrate usage of this library.  There is a text area and edits
+retain history that can then be viewed through the undo and redo buttons.  You
+probably want to open the example beside this tutorial.</p>
+<p>Looking at the code, the first thing you might notice is the import statement:</p>
+<pre><code class="hljs lang-jsx">import * as H from &#39;kefir.partial.lenses.history&#39;</code></pre>
+<p>When used in a <a href="https://github.com/calmm-js/karet">Karet</a> UI, this library is
+intended to be used through the <a href="https://github.com/calmm-js/kefir.partial.lenses.history">Kefir Partial Lenses
+History</a> library,
+which is a simple <a href="https://github.com/calmm-js/karet.util#U-lift">lifted</a>
+wrapper around this library.  Lifting allows the functions of this library to be
+directly used on <a href="https://kefirjs.github.io/kefir/">Kefir</a>
+<a href="https://kefirjs.github.io/kefir/#about-observables">properties</a> and
+<a href="https://github.com/calmm-js/kefir.atom">atoms</a> representing time-varying values
+and reactive variables.  However, this library does not depend on Karet or Kefir
+and can be used with pretty much any UI framework.</p>
+<p>To use history, one must first use <a href="#H-init"><code>H.init</code></a> to create the initial
+history value and then store the value:</p>
+<pre><code class="hljs lang-jsx">const history = U.atom(H.init({}, &#39;&#39;))</code></pre>
+<p>In this case we use <a href="https://github.com/calmm-js/karet.util#U-atom"><code>U.atom</code></a> to
+create an <a href="https://github.com/calmm-js/kefir.atom">atom</a> to store the history.</p>
+<blockquote>
+<p>In a plain React UI, for example, one would typically store the history in
+component state:</p>
+<pre><code class="hljs lang-jsx">this.state = {history: H.init({}, &#39;&#39;)}</code></pre>
+</blockquote>
+<p>To access the present value from history, one uses the <a href="#H-present"><code>H.present</code></a>
+<a href="https://github.com/calmm-js/partial.lenses/#lenses">lens</a>:</p>
+<pre><code class="hljs lang-jsx">const text = U.view(H.present, history)</code></pre>
+<p>As we are using atoms, we can use the
+<a href="https://github.com/calmm-js/karet.util#U-view"><code>U.view</code></a> function to create a
+bidirectional view of the present that we can then use to both read and write
+the present value.</p>
+<blockquote>
+<p>In a plain React UI, one could use
+<a href="https://github.com/calmm-js/partial.lenses/#L-get"><code>L.get</code></a> to read the
+present value from component state:</p>
+<pre><code class="hljs lang-jsx">const currentText = L.get([&#39;history&#39;, H.present], this.state)</code></pre>
+<p>and <a href="https://github.com/calmm-js/partial.lenses/#L-set"><code>L.set</code></a> to write to
+the present value in component state:</p>
+<pre><code class="hljs lang-jsx">this.setState(L.set([&#39;history&#39;, H.present], newText))</code></pre>
+<p>The point here is that this library is not at all limited to Karet UIs.  In
+the remainder we will only discuss the actual example.</p>
+</blockquote>
+<p>Now that we have the <code>text</code> view, we can use it to access the text without
+knowing anything about the history.  So we can simply instantiate a
+<a href="https://github.com/calmm-js/karet.util#U-TextArea"><code>U.TextArea</code></a> with the
+<code>text</code> as the <code>value</code>:</p>
+<pre><code class="hljs lang-jsx">&lt;U.TextArea placeholder=&quot;Retains history&quot; value={text} /&gt;</code></pre>
+<p>Now edits through the text area generate history.  Note that, while in this case
+we only store simple strings in history, values stored in history can be
+arbitrarily complex trees of objects.</p>
+<p>Of course, to actually make use of the history, we need to provide access to the
+history itself, rather than just the present value.  To that end we implement a
+countdown button component:</p>
+<pre><code class="hljs lang-jsx">const CountdownButton = ({count, shortcut, children, ...props}) =&gt; (
+  &lt;button disabled={R.not(count)} onClick={U.doModify(count, R.dec)} {...props}&gt;
+    {children}
+    {U.when(count, U.string` (${count})`)}
+    {U.when(
+      shortcut,
+      U.thru(
+        U.fromEvents(document.body, &#39;keydown&#39;, false),
+        U.skipUnless(shortcut),
+        U.consume(U.actions(U.preventDefault, U.doModify(count, R.dec)))
+      )
+    )}
+  &lt;/button&gt;
+)</code></pre>
+<p>The above <code>CountdownButton</code> component expects to receive a <code>count</code> atom
+containing a non-negative integer and it then renders a button that is enabled
+when the count is positive.  Clicking the button decrements the <code>count</code>.
+Additionally, given a <code>shortcut</code> event predicate, it also binds a keyboard event
+handler to the document that performs the same decrement action.  Note that the
+above <code>CountdownButton</code> knows nothing about history.  It is just a generic
+button that decrements a counter.</p>
+<p>To wire countdown buttons to perform undo and redo actions on history, we use
+the <a href="#H-undoIndex"><code>H.undoIndex</code></a> and <a href="#H-redoIndex"><code>H.redoIndex</code></a> lenses to
+view the history.  Here is how looks like for the undo button:</p>
+<pre><code class="hljs lang-jsx">&lt;CountdownButton
+  count={U.view(H.undoIndex, history)}
+  title=&quot;Ctrl-z&quot;
+  shortcut={e =&gt; e.ctrlKey &amp;&amp; e.key === &#39;z&#39;}&gt;
+  Undo
+&lt;/CountdownButton&gt;</code></pre>
+<p>Modifying the undo index actually modifies the history.  That pretty much covers
+basic usage of this library.</p>
 <h2><a id="reference"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#reference">■</a> <a href="#reference">Reference</a></h2>
 <p>The <a href="https://wiki.haskell.org/Combinator">combinators</a> provided by this library
 are available as named imports.  Typically one just imports the library as:</p>
@@ -87,7 +177,9 @@ Lenses</a> library imported as</p>
 <p>and the following helper function,
 <a href="https://github.com/calmm-js/karet.util/#U-thru"><code>thru</code></a>, that pipes a value
 through the given sequence of functions:</p>
-<pre><code class="hljs lang-js">var thru = (x, ...fns) =&gt; fns.reduce((x, fn) =&gt; fn(x), x)</code></pre>
+<pre><code class="hljs lang-js">function thru(x, ...fns) {
+  return fns.reduce((x, fn) =&gt; fn(x), x)
+}</code></pre>
 <h3><a id="creating"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#creating">Creating</a></h3>
 <h4><a id="H-init"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-init">■</a> <a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.init</code> creates a new history state object with the given initial <code>value</code>.  The
