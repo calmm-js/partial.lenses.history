@@ -5,8 +5,8 @@ Undo-Redo history.  History can be serialized as JSON and all operations on
 history are either `O(1)` or `O(log n)`.
 
 Examples:
-* The [Basic History / Undo-Redo](https://codesandbox.io/s/y0mzonm98x)
-  CodeSandbox provides a simple example of using this library.
+* The [Basic Undo-Redo](https://codesandbox.io/s/y0mzonm98x) CodeSandbox
+  provides a simple example that is discussed [below](#a-basic-example).
 * The [Form using Context](https://codesandbox.io/s/2rq54pgrp) CodeSandbox also
   demonstrates this library.
 
@@ -18,6 +18,7 @@ Examples:
 
 ## <a id="contents"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#contents) [Contents](#contents)
 
+* [A basic example](#a-basic-example)
 * [Reference](#reference)
   * [Creating](#creating)
     * [`H.init({[maxCount, pushEquals, replacePeriod]}, value) ~> history`](#H-init) <small><sup>v0.1.0</sup></small>
@@ -33,6 +34,136 @@ Examples:
     * [`H.count(history) ~> number`](#H-count) <small><sup>v0.1.0</sup></small>
     * [`H.index ~> numberLens`](#H-index) <small><sup>v0.2.0</sup></small>
     * [`H.indexMax(history) ~> number`](#H-indexMax) <small><sup>v0.2.3</sup></small>
+
+## <a id="a-basic-example"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#a-basic-example) [A basic example](#a-basic-example)
+
+This section describes the [Basic
+Undo-Redo](https://codesandbox.io/s/y0mzonm98x) CodeSandbox example that was
+written to demonstrate usage of this library.  There is a text area and edits
+retain history that can then be viewed through the undo and redo buttons.  You
+probably want to open the example beside this tutorial.
+
+Looking at the code, the first thing you might notice is the import statement:
+
+```jsx
+import * as H from 'kefir.partial.lenses.history'
+```
+
+When used in a [Karet](https://github.com/calmm-js/karet) UI, this library is
+intended to be used through the [Kefir Partial Lenses
+History](https://github.com/calmm-js/kefir.partial.lenses.history) library,
+which is a simple [lifted](https://github.com/calmm-js/karet.util#U-lift)
+wrapper around this library.  Lifting allows the functions of this library to be
+directly used on [Kefir](https://kefirjs.github.io/kefir/)
+[properties](https://kefirjs.github.io/kefir/#about-observables) and
+[atoms](https://github.com/calmm-js/kefir.atom) representing time-varying values
+and reactive variables.  However, this library does not depend on Karet or Kefir
+and can be used with pretty much any UI framework.
+
+To use history, one must first use [`H.init`](#H-init) to create the initial
+history value and then store the value:
+
+```jsx
+const history = U.atom(H.init({}, ''))
+```
+
+In this case we use [`U.atom`](https://github.com/calmm-js/karet.util#U-atom) to
+create an [atom](https://github.com/calmm-js/kefir.atom) to store the history.
+
+> In a plain React UI, for example, one would typically store the history in
+> component state:
+>
+> ```jsx
+> this.state = {history: H.init({}, '')}
+> ```
+
+To access the present value from history, one uses the [`H.present`](#-present)
+[lens](https://github.com/calmm-js/partial.lenses/#lenses):
+
+```jsx
+const text = U.view(H.present, history)
+```
+
+As we are using atoms, we can use the
+[`U.view`](https://github.com/calmm-js/karet.util#U-view) function to create a
+bidirectional view of the present that we can then use to both read and write
+the present value.
+
+> In a plain React UI, one could use
+> [`L.get`](https://github.com/calmm-js/partial.lenses/#L-get) to read the
+> present value from component state:
+>
+> ```jsx
+> const currentText = L.get(['history', H.present], this.state)
+> ```
+>
+> and [`L.set`](https://github.com/calmm-js/partial.lenses/#L-set) to write to
+> the present value in component state:
+>
+> ```jsx
+> this.setState(L.set(['history', H.present], newText))
+> ```
+>
+> The point here is that this library is not at all limited to Karet UIs.  In
+> the remainder we will only discuss the actual example.
+
+Now that we have the `text` view, we can use it to access the text without
+knowing anything about the history.  So we can simply instantiate a
+[`U.TextArea`](https://github.com/calmm-js/karet.util#U-TextArea) with the
+`text` as the `value`:
+
+```jsx
+<U.TextArea placeholder="Retains history" value={text} />
+```
+
+Now edits through the text area generate history.  Note that, while in this case
+we only store simple strings in history, values stored in history can be
+arbitrarily complex trees of objects.
+
+Of course, to actually make use of the history, we need to provide access to the
+history itself, rather than just the present value.  To that end we implement a
+countdown button component:
+
+```jsx
+const CountdownButton = ({count, shortcut, children, ...props}) => (
+  <button disabled={R.not(count)} onClick={U.doModify(count, R.dec)} {...props}>
+    {children}
+    {U.when(count, U.string` (${count})`)}
+    {U.when(
+      shortcut,
+      U.thru(
+        U.fromEvents(document.body, 'keydown', false),
+        U.skipUnless(shortcut),
+        U.consume(U.actions(U.preventDefault, U.doModify(count, R.dec)))
+      )
+    )}
+  </button>
+)
+```
+
+The above `CountdownButton` component expects to receive a `count` atom
+containing a non-negative integer and it then renders a button that is enabled
+when the count is positive.  Clicking the button decrements the `count`.
+Additionally, given a `shortcut` event predicate, it also binds a keyboard event
+handler to the document that performs the same decrement action.  Note that the
+above `CountdownButton` knows nothing about history.  It is just a generic
+button that decrements a counter.
+
+To wire countdown buttons to perform undo and redo actions on history, we use
+the [`H.undoIndex`](#H-undoIndex) and [`H.redoIndex`](#H-redoIndex) lenses to
+view the history.  Here is how looks like for the undo button:
+
+```jsx
+<CountdownButton
+  count={U.view(H.undoIndex, history)}
+  title="Ctrl-z"
+  shortcut={e => e.ctrlKey && e.key === 'z'}>
+  Undo
+</CountdownButton>
+```
+
+Modifying the undo index actually modifies the history.  That pretty much covers
+basic usage of this library.
 
 ## <a id="reference"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#reference) [Reference](#reference)
 
@@ -55,7 +186,9 @@ and the following helper function,
 through the given sequence of functions:
 
 ```js
-const thru = (x, ...fns) => fns.reduce((x, fn) => fn(x), x)
+function thru(x, ...fns) {
+  return fns.reduce((x, fn) => fn(x), x)
+}
 ```
 
 ### <a id="creating"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [Creating](#creating)
