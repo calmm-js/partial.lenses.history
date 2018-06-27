@@ -34,8 +34,14 @@
     <h1><a id="partial-lenses-history"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#">■</a> <a href="#partial-lenses-history">Partial Lenses History</a> &middot; <a href="https://gitter.im/calmm-js/chat"><img src="https://img.shields.io/gitter/room/calmm-js/chat.js.svg" alt="Gitter"></a> <a href="https://github.com/calmm-js/partial.lenses.history"><img src="https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social" alt="GitHub stars"></a> <a href="https://www.npmjs.com/package/partial.lenses.history"><img src="https://img.shields.io/npm/dm/partial.lenses.history.svg" alt="npm"></a></h1>
 <p>Partial Lenses History is a JavaScript library for state manipulation with
 Undo-Redo history.  History can be serialized as JSON and all operations on
-history are either <code>O(1)</code> or <code>O(log n)</code>.  See this live
-<a href="https://codesandbox.io/s/2rq54pgrp">CodeSandbox</a> for an example.</p>
+history are either <code>O(1)</code> or <code>O(log n)</code>.</p>
+<p>Examples:</p>
+<ul>
+<li>The <a href="https://codesandbox.io/s/y0mzonm98x">Basic History / Undo-Redo</a>
+CodeSandbox provides a simple example of using this library.</li>
+<li>The <a href="https://codesandbox.io/s/2rq54pgrp">Form using Context</a> CodeSandbox also
+demonstrates this library.</li>
+</ul>
 <p><a href="http://badge.fury.io/js/partial.lenses.history"><img src="https://badge.fury.io/js/partial.lenses.history.svg" alt="npm version"></a>
 <a href="https://travis-ci.org/calmm-js/partial.lenses.history"><img src="https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master" alt="Build Status"></a>
 <a href="https://codecov.io/github/calmm-js/partial.lenses.history?branch=master"><img src="https://img.shields.io/codecov/c/github/calmm-js/partial.lenses.history/master.svg" alt="Code Coverage"></a>
@@ -65,6 +71,7 @@ history are either <code>O(1)</code> or <code>O(log n)</code>.  See this live
 <li><a href="#time-travel">Time travel</a><ul>
 <li><a href="#H-count"><code>H.count(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></li>
 <li><a href="#H-index"><code>H.index ~&gt; numberLens</code></a> <small><sup>v0.2.0</sup></small></li>
+<li><a href="#H-indexMax"><code>H.indexMax(history) ~&gt; number</code></a> <small><sup>v0.2.3</sup></small></li>
 </ul>
 </li>
 </ul>
@@ -175,7 +182,8 @@ on the redo position of history.</p>
 </code></pre>
 <h3><a id="time-travel"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#time-travel">■</a> <a href="#time-travel">Time travel</a></h3>
 <h4><a id="H-count"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-count">■</a> <a href="#H-count"><code>H.count(history) ~&gt; number</code></a> <small><sup>v0.1.0</sup></small></h4>
-<p><code>H.count</code> returns the number of entries in history.</p>
+<p><code>H.count</code> returns the number of entries in history.  See also
+<a href="#H-indexMax"><code>H.indexMax</code></a>.</p>
 <p>For example:</p>
 <pre><code class="hljs lang-js">thru(
   H.init({}, &#39;1st&#39;),
@@ -195,6 +203,16 @@ on the index of present of history.</p>
   L.set(H.present, &#39;3rd&#39;),
   L.set(H.index, 1),
   L.get(H.present)
+)
+</code></pre>
+<h4><a id="H-indexMax"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-indexMax">■</a> <a href="#H-indexMax"><code>H.indexMax(history) ~&gt; number</code></a> <small><sup>v0.2.3</sup></small></h4>
+<p><code>H.indexMax</code> returns the maximum history index.  See also <a href="#H-count"><code>H.count</code></a>.</p>
+<p>For example:</p>
+<pre><code class="hljs lang-js">thru(
+  H.init({}, &#39;1st&#39;),
+  L.set(H.present, &#39;2nd&#39;),
+  L.set(H.present, &#39;3rd&#39;),
+  H.indexMax
 )
 </code></pre>
 

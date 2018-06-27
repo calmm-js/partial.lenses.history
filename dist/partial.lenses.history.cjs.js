@@ -144,7 +144,7 @@ function setPresentU(value, history) {
 }
 
 var setIndexU = function setIndexU(index, history) {
-  return construct$1(Math.max(0, Math.min(index, count(history) - 1)), history.t, history.v, history.c);
+  return construct$1(Math.max(0, Math.min(index, indexMax(history))), history.t, history.v, history.c);
 };
 
 // Creating
@@ -171,6 +171,10 @@ var index = /*#__PURE__*/L.lens(function index(history) {
   return history.i;
 }, setIndexU);
 
+var indexMax = function indexMax(history) {
+  return length(history.v) - 1;
+};
+
 // Present
 
 var present = /*#__PURE__*/L.lens(function present(history) {
@@ -184,9 +188,9 @@ var undoForget = function undoForget(history) {
 // Redo
 
 var redoIndex = /*#__PURE__*/L.lens(function redoIndex(history) {
-  return count(history) - 1 - history.i;
+  return indexMax(history) - history.i;
 }, function (index, history) {
-  return setIndexU(count(history) - 1 - index, history);
+  return setIndexU(indexMax(history) - index, history);
 });
 
 var redoForget = function redoForget(history) {
@@ -239,6 +243,7 @@ var redoForget$1 = /*#__PURE__*/C(redoForget, /*#__PURE__*/fn([history], history
 
 var count$1 = /*#__PURE__*/C(count, /*#__PURE__*/fn([history], integer));
 var index$1 = /*#__PURE__*/C(index, /*#__PURE__*/lens(history, integer));
+var indexMax$1 = /*#__PURE__*/C(indexMax, /*#__PURE__*/fn([history], integer));
 
 exports.init = init$1;
 exports.present = present$1;
@@ -248,3 +253,4 @@ exports.redoIndex = redoIndex$1;
 exports.redoForget = redoForget$1;
 exports.count = count$1;
 exports.index = index$1;
+exports.indexMax = indexMax$1;
