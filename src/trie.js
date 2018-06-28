@@ -1,3 +1,5 @@
+import * as I from 'infestines'
+
 const BITS = 4
 const SINGLE = 1 << BITS
 const MASK = SINGLE - 1
@@ -8,9 +10,12 @@ function shiftOf(count) {
   return level
 }
 
-const construct = (l, u, r) => ({l, u, r})
+const construct =
+  process.env.NODE_ENV === 'production'
+    ? (l, u, r) => ({l, u, r})
+    : (l, u, r) => I.freeze({l, u, r: I.freeze(r)})
 
-const empty = construct(0, 0, [])
+const empty = construct(0, 0, I.array0)
 
 const of = v => construct(0, 1, [v])
 
@@ -27,14 +32,19 @@ function nth(i, trie) {
 
 const length = trie => trie.u - trie.l
 
-function setRec(shift, i, value, node) {
+const setRec = (process.env.NODE_ENV === 'production'
+  ? I.id
+  : fn =>
+      function setRec(s, i, v, n) {
+        return I.freeze(fn(s, i, v, n))
+      })((shift, i, value, node) => {
   const j = (i >> shift) & MASK
   const x = shift !== 0 ? setRec(shift - BITS, i, value, node[j] || '') : value
   const r = []
   for (let k = 0, n = node.length; k < n; ++k) r[k] = node[k]
   r[j] = x
   return r
-}
+})
 
 function append(value, trie) {
   const upper = trie.u
@@ -49,7 +59,12 @@ function append(value, trie) {
   )
 }
 
-function clrLhsRec(shift, i, node) {
+const clrLhsRec = (process.env.NODE_ENV === 'production'
+  ? I.id
+  : fn =>
+      function clrLhsRec(s, i, n) {
+        return I.freeze(fn(s, i, n))
+      })((shift, i, node) => {
   const j = (i >> shift) & MASK
   const x = 0 !== shift ? clrLhsRec(shift - BITS, i, node[j]) : node[j]
   const r = []
@@ -57,16 +72,21 @@ function clrLhsRec(shift, i, node) {
   r[j] = x
   for (let k = j + 1, n = node.length; k < n; ++k) r[k] = node[k]
   return r
-}
+})
 
-function clrRhsRec(shift, i, node) {
+const clrRhsRec = (process.env.NODE_ENV === 'production'
+  ? I.id
+  : fn =>
+      function clrRhsRec(s, i, n) {
+        return I.freeze(fn(s, i, n))
+      })((shift, i, node) => {
   const j = (i >> shift) & MASK
   const x = 0 !== shift ? clrRhsRec(shift - BITS, i, node[j]) : node[j]
   const r = []
   for (let k = 0; k < j; ++k) r[k] = node[k]
   r[j] = x
   return r
-}
+})
 
 function slice(from, to, trie) {
   if (to <= from) return empty

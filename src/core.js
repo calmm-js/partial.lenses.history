@@ -5,7 +5,10 @@ import * as S from './trie'
 
 //
 
-const construct = (i, t, v, c) => ({i, t, v, c})
+const construct =
+  process.env.NODE_ENV === 'production'
+    ? (i, t, v, c) => ({i, t, v, c})
+    : (i, t, v, c) => I.freeze({i, t, v, c: I.freeze(c)})
 
 //
 
