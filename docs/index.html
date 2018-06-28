@@ -33,10 +33,10 @@
     <hr>
     <h1><a id="partial-lenses-history"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#">■</a> <a href="#partial-lenses-history">Partial Lenses History</a> &middot; <a href="https://gitter.im/calmm-js/chat"><img src="https://img.shields.io/gitter/room/calmm-js/chat.js.svg" alt="Gitter"></a> <a href="https://github.com/calmm-js/partial.lenses.history"><img src="https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social" alt="GitHub stars"></a> <a href="https://www.npmjs.com/package/partial.lenses.history"><img src="https://img.shields.io/npm/dm/partial.lenses.history.svg" alt="npm"></a></h1>
 <p>Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.  History can be serialized as JSON and all operations on
-history are either <code>O(1)</code> or <code>O(log n)</code>.</p>
-<p>Basic features:</p>
+Undo-Redo history.  Basic features:</p>
 <ul>
+<li><a href="#on-serializability">History can be serialized as JSON</a></li>
+<li><a href="#on-performance">All operations on history are either <code>O(1)</code> or <code>O(log n)</code></a></li>
 <li>Interactive documentation (the <a href="">▶
 links</a>) and live
 examples:<ul>
@@ -64,8 +64,13 @@ also demonstrates this library.</li>
 <ul>
 <li><a href="#a-basic-example">A basic example</a></li>
 <li><a href="#reference">Reference</a><ul>
+<li><a href="#basic-properties">Basic properties</a><ul>
+<li><a href="#on-serializability">On serializability</a></li>
+<li><a href="#on-performance">On performance</a></li>
 <li><a href="#on-immutability">On immutability</a></li>
 <li><a href="#on-side-effects">On side-effects</a></li>
+</ul>
+</li>
 <li><a href="#creating">Creating</a><ul>
 <li><a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
 </ul>
@@ -195,15 +200,28 @@ through the given sequence of functions:</p>
 <pre><code class="hljs lang-js">function thru(x, ...fns) {
   return fns.reduce((x, fn) =&gt; fn(x), x)
 }</code></pre>
-<h3><a id="on-immutability"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-immutability">On immutability</a></h3>
+<h4><a id="basic-properties"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#basic-properties">Basic properties</a></h4>
+<h4><a id="on-serializability"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-serializability">On serializability</a></h4>
+<p>The history data type should be considered opaque.  However, the history data
+structure itself only uses <a href="https://www.json.org/">JSON</a> compatible types.
+Assuming that <code>JSON.parse(JSON.stringify(v))</code> is considered equivalent to <code>v</code>
+for any value <code>v</code> put into history, then it is guaranteed that
+<code>JSON.parse(JSON.stringify(history))</code> is considered equivalent to <code>history</code>.</p>
+<h4><a id="on-performance"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-performance">On performance</a></h4>
+<p>The internal implementation of history uses a simple but fairly efficient data
+structure (currently a radix search trie) that can perform all the operations
+exposed by this library in either <code>O(1)</code> or <code>O(log n)</code> time.</p>
+<h4><a id="on-immutability"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-immutability">On immutability</a></h4>
 <p>Since version 1.1.0 the history data structure is kept
 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze">frozen</a>
 when <code>NODE_ENV</code> is not <code>production</code>.  Only the history data structure itself is
 frozen.  Values inserted into history are not frozen by this library.</p>
-<h3><a id="on-side-effects"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-side-effects">On side-effects</a></h3>
+<h4><a id="on-side-effects"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-side-effects">On side-effects</a></h4>
 <p>Certain operations, namely <a href="#H-init"><code>H.init</code></a> and
 <a href="#H-present"><code>L.set(H.present)</code></a> in this library are not pure functions, because
-they take timestamps underneath.</p>
+they <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now">take
+timestamps</a>
+underneath.</p>
 <h3><a id="creating"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#creating">Creating</a></h3>
 <h4><a id="H-init"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-init">■</a> <a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.init</code> creates a new history state object with the given initial <code>value</code>.  The
@@ -224,10 +242,6 @@ which an update replaces the present value without adding history.</li>
   L.get(H.present)
 )
 </code></pre>
-<p>The <code>history</code> data type should be considered opaque.  However, assuming that
-<code>JSON.parse(JSON.stringify(v))</code> is considered equivalent to <code>v</code> for any value
-<code>v</code> put into history, then it is guaranteed that
-<code>JSON.parse(JSON.stringify(history))</code> is considered equivalent to <code>history</code>.</p>
 <p>Note that <code>H.init</code> is not a pure function, because it takes a timestamp
 underneath.</p>
 <h3><a id="present"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#present">■</a> <a href="#present">Present</a></h3>

@@ -1,11 +1,9 @@
 # <a id="partial-lenses-history"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#) [Partial Lenses History](#partial-lenses-history) &middot; [![Gitter](https://img.shields.io/gitter/room/calmm-js/chat.js.svg)](https://gitter.im/calmm-js/chat) [![GitHub stars](https://img.shields.io/github/stars/calmm-js/partial.lenses.history.svg?style=social)](https://github.com/calmm-js/partial.lenses.history) [![npm](https://img.shields.io/npm/dm/partial.lenses.history.svg)](https://www.npmjs.com/package/partial.lenses.history)
 
 Partial Lenses History is a JavaScript library for state manipulation with
-Undo-Redo history.  History can be serialized as JSON and all operations on
-history are either `O(1)` or `O(log n)`.
-
-Basic features:
-
+Undo-Redo history.  Basic features:
+* [History can be serialized as JSON](#on-serializability)
+* [All operations on history are either `O(1)` or `O(log n)`](#on-performance)
 * Interactive documentation (the [▶
   links](https://calmm-js.github.io/partial.lenses.history/index.html)) and live
   examples:
@@ -30,8 +28,11 @@ Basic features:
 
 * [A basic example](#a-basic-example)
 * [Reference](#reference)
-  * [On immutability](#on-immutability)
-  * [On side-effects](#on-side-effects)
+  * [Basic properties](#basic-properties)
+    * [On serializability](#on-serializability)
+    * [On performance](#on-performance)
+    * [On immutability](#on-immutability)
+    * [On side-effects](#on-side-effects)
   * [Creating](#creating)
     * [`H.init({[maxCount, pushEquals, replacePeriod]}, value) ~> history`](#H-init) <small><sup>v0.1.0</sup></small>
   * [Present](#present)
@@ -203,18 +204,36 @@ function thru(x, ...fns) {
 }
 ```
 
-### <a id="on-immutability"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On immutability](#on-immutability)
+#### <a id="basic-properties"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [Basic properties](#basic-properties)
+
+#### <a id="on-serializability"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On serializability](#on-serializability)
+
+The history data type should be considered opaque.  However, the history data
+structure itself only uses [JSON](https://www.json.org/) compatible types.
+Assuming that `JSON.parse(JSON.stringify(v))` is considered equivalent to `v`
+for any value `v` put into history, then it is guaranteed that
+`JSON.parse(JSON.stringify(history))` is considered equivalent to `history`.
+
+#### <a id="on-performance"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On performance](#on-performance)
+
+The internal implementation of history uses a simple but fairly efficient data
+structure (currently a radix search trie) that can perform all the operations
+exposed by this library in either `O(1)` or `O(log n)` time.
+
+#### <a id="on-immutability"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On immutability](#on-immutability)
 
 Since version 1.1.0 the history data structure is kept
 [frozen](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)
 when `NODE_ENV` is not `production`.  Only the history data structure itself is
 frozen.  Values inserted into history are not frozen by this library.
 
-### <a id="on-side-effects"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On side-effects](#on-side-effects)
+#### <a id="on-side-effects"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On side-effects](#on-side-effects)
 
 Certain operations, namely [`H.init`](#H-init) and
 [`L.set(H.present)`](#H-present) in this library are not pure functions, because
-they take timestamps underneath.
+they [take
+timestamps](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/now)
+underneath.
 
 ### <a id="creating"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [Creating](#creating)
 
@@ -240,11 +259,6 @@ thru(
 )
 // 101
 ```
-
-The `history` data type should be considered opaque.  However, assuming that
-`JSON.parse(JSON.stringify(v))` is considered equivalent to `v` for any value
-`v` put into history, then it is guaranteed that
-`JSON.parse(JSON.stringify(history))` is considered equivalent to `history`.
 
 Note that `H.init` is not a pure function, because it takes a timestamp
 underneath.
