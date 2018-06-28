@@ -4,11 +4,21 @@ Partial Lenses History is a JavaScript library for state manipulation with
 Undo-Redo history.  History can be serialized as JSON and all operations on
 history are either `O(1)` or `O(log n)`.
 
-Examples:
-* The [Basic Undo-Redo](https://codesandbox.io/s/y0mzonm98x) CodeSandbox
-  provides a simple example that is discussed [below](#a-basic-example).
-* The [Form using Context](https://codesandbox.io/s/2rq54pgrp) CodeSandbox also
-  demonstrates this library.
+Basic features:
+
+* Interactive documentation (the [▶
+  links](https://calmm-js.github.io/partial.lenses.history/index.html)) and live
+  examples:
+  * The [Basic Undo-Redo](https://codesandbox.io/s/y0mzonm98x) CodeSandbox
+    provides a simple example that is discussed [below](#a-basic-example).
+  * The [Form using Context](https://codesandbox.io/s/2rq54pgrp) CodeSandbox
+    also demonstrates this library.
+* [Mostly](#on-side-effects) functional API:
+  * [Immutable data structures](#on-immutability)
+  * [Curried functions](http://fr.umio.us/favoring-curry/)
+* [Supports tree-shaking](https://webpack.js.org/guides/tree-shaking/)
+* [Contract checking in non-production builds](./src/partial.lenses.history.js)
+* [MIT license](./LICENSE.md)
 
 [![npm version](https://badge.fury.io/js/partial.lenses.history.svg)](http://badge.fury.io/js/partial.lenses.history)
 [![Build Status](https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master)](https://travis-ci.org/calmm-js/partial.lenses.history)
@@ -20,6 +30,8 @@ Examples:
 
 * [A basic example](#a-basic-example)
 * [Reference](#reference)
+  * [On immutability](#on-immutability)
+  * [On side-effects](#on-side-effects)
   * [Creating](#creating)
     * [`H.init({[maxCount, pushEquals, replacePeriod]}, value) ~> history`](#H-init) <small><sup>v0.1.0</sup></small>
   * [Present](#present)
@@ -190,6 +202,19 @@ function thru(x, ...fns) {
   return fns.reduce((x, fn) => fn(x), x)
 }
 ```
+
+### <a id="on-immutability"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On immutability](#on-immutability)
+
+Since version 1.1.0 the history data structure is kept
+[frozen](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze)
+when `NODE_ENV` is not `production`.  Only the history data structure itself is
+frozen.  Values inserted into history are not frozen by this library.
+
+### <a id="on-side-effects"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [On side-effects](#on-side-effects)
+
+Certain operations, namely [`H.init`](#H-init) and
+[`L.set(H.present)`](#H-present) in this library are not pure functions, because
+they take timestamps underneath.
 
 ### <a id="creating"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#creating) [Creating](#creating)
 

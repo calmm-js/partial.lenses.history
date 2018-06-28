@@ -35,12 +35,25 @@
 <p>Partial Lenses History is a JavaScript library for state manipulation with
 Undo-Redo history.  History can be serialized as JSON and all operations on
 history are either <code>O(1)</code> or <code>O(log n)</code>.</p>
-<p>Examples:</p>
+<p>Basic features:</p>
 <ul>
+<li>Interactive documentation (the <a href="">▶
+links</a>) and live
+examples:<ul>
 <li>The <a href="https://codesandbox.io/s/y0mzonm98x">Basic Undo-Redo</a> CodeSandbox
 provides a simple example that is discussed <a href="#a-basic-example">below</a>.</li>
-<li>The <a href="https://codesandbox.io/s/2rq54pgrp">Form using Context</a> CodeSandbox also
-demonstrates this library.</li>
+<li>The <a href="https://codesandbox.io/s/2rq54pgrp">Form using Context</a> CodeSandbox
+also demonstrates this library.</li>
+</ul>
+</li>
+<li><a href="#on-side-effects">Mostly</a> functional API:<ul>
+<li><a href="#on-immutability">Immutable data structures</a></li>
+<li><a href="http://fr.umio.us/favoring-curry/">Curried functions</a></li>
+</ul>
+</li>
+<li><a href="https://webpack.js.org/guides/tree-shaking/">Supports tree-shaking</a></li>
+<li><a href="https://github.com/calmm-js/partial.lenses.history/blob/master/src/partial.lenses.history.js">Contract checking in non-production builds</a></li>
+<li><a href="https://github.com/calmm-js/partial.lenses.history/blob/master/LICENSE.md">MIT license</a></li>
 </ul>
 <p><a href="http://badge.fury.io/js/partial.lenses.history"><img src="https://badge.fury.io/js/partial.lenses.history.svg" alt="npm version"></a>
 <a href="https://travis-ci.org/calmm-js/partial.lenses.history"><img src="https://travis-ci.org/calmm-js/partial.lenses.history.svg?branch=master" alt="Build Status"></a>
@@ -51,6 +64,8 @@ demonstrates this library.</li>
 <ul>
 <li><a href="#a-basic-example">A basic example</a></li>
 <li><a href="#reference">Reference</a><ul>
+<li><a href="#on-immutability">On immutability</a></li>
+<li><a href="#on-side-effects">On side-effects</a></li>
 <li><a href="#creating">Creating</a><ul>
 <li><a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></li>
 </ul>
@@ -180,6 +195,15 @@ through the given sequence of functions:</p>
 <pre><code class="hljs lang-js">function thru(x, ...fns) {
   return fns.reduce((x, fn) =&gt; fn(x), x)
 }</code></pre>
+<h3><a id="on-immutability"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-immutability">On immutability</a></h3>
+<p>Since version 1.1.0 the history data structure is kept
+<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze">frozen</a>
+when <code>NODE_ENV</code> is not <code>production</code>.  Only the history data structure itself is
+frozen.  Values inserted into history are not frozen by this library.</p>
+<h3><a id="on-side-effects"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#on-side-effects">On side-effects</a></h3>
+<p>Certain operations, namely <a href="#H-init"><code>H.init</code></a> and
+<a href="#H-present"><code>L.set(H.present)</code></a> in this library are not pure functions, because
+they take timestamps underneath.</p>
 <h3><a id="creating"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#creating">■</a> <a href="#creating">Creating</a></h3>
 <h4><a id="H-init"></a> <a href="#contents">≡</a> <a href="https://github.com/calmm-js/partial.lenses.history/blob/master/README.md#H-init">■</a> <a href="#H-init"><code>H.init({[maxCount, pushEquals, replacePeriod]}, value) ~&gt; history</code></a> <small><sup>v0.1.0</sup></small></h4>
 <p><code>H.init</code> creates a new history state object with the given initial <code>value</code>.  The

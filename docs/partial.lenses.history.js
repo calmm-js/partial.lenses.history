@@ -27,11 +27,11 @@
     }return level;
   }
 
-  var construct = function construct(l, u, r) {
-    return { l: l, u: u, r: r };
+  var construct = function (l, u, r) {
+    return I.freeze({ l: l, u: u, r: I.freeze(r) });
   };
 
-  var empty = /*#__PURE__*/construct(0, 0, []);
+  var empty = /*#__PURE__*/construct(0, 0, I.array0);
 
   var of = function of(v) {
     return construct(0, 1, [v]);
@@ -52,7 +52,11 @@
     return trie.u - trie.l;
   };
 
-  function setRec(shift, i, value, node) {
+  var setRec = /*#__PURE__*/(function (fn) {
+    return function setRec(s, i, v, n) {
+      return I.freeze(fn(s, i, v, n));
+    };
+  })(function (shift, i, value, node) {
     var j = i >> shift & MASK;
     var x = shift !== 0 ? setRec(shift - BITS, i, value, node[j] || '') : value;
     var r = [];
@@ -60,7 +64,7 @@
       r[k] = node[k];
     }r[j] = x;
     return r;
-  }
+  });
 
   function append(value, trie) {
     var upper = trie.u;
@@ -69,7 +73,11 @@
     return construct(trie.l, upper + 1, upper >> shift < SINGLE ? setRec(shift, upper, value, root) : [root, setRec(shift, upper, value, '')]);
   }
 
-  function clrLhsRec(shift, i, node) {
+  var clrLhsRec = /*#__PURE__*/(function (fn) {
+    return function clrLhsRec(s, i, n) {
+      return I.freeze(fn(s, i, n));
+    };
+  })(function (shift, i, node) {
     var j = i >> shift & MASK;
     var x = 0 !== shift ? clrLhsRec(shift - BITS, i, node[j]) : node[j];
     var r = [];
@@ -79,9 +87,13 @@
     for (var _k = j + 1, n = node.length; _k < n; ++_k) {
       r[_k] = node[_k];
     }return r;
-  }
+  });
 
-  function clrRhsRec(shift, i, node) {
+  var clrRhsRec = /*#__PURE__*/(function (fn) {
+    return function clrRhsRec(s, i, n) {
+      return I.freeze(fn(s, i, n));
+    };
+  })(function (shift, i, node) {
     var j = i >> shift & MASK;
     var x = 0 !== shift ? clrRhsRec(shift - BITS, i, node[j]) : node[j];
     var r = [];
@@ -89,7 +101,7 @@
       r[k] = node[k];
     }r[j] = x;
     return r;
-  }
+  });
 
   function slice(from, to, trie) {
     if (to <= from) return empty;
@@ -119,8 +131,8 @@
 
   //
 
-  var construct$1 = function construct(i, t, v, c) {
-    return { i: i, t: t, v: v, c: c };
+  var construct$1 = function (i, t, v, c) {
+    return I.freeze({ i: i, t: t, v: v, c: I.freeze(c) });
   };
 
   //

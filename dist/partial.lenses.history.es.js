@@ -1,4 +1,4 @@
-import { isArray, isFunction, arityN, acyclicEqualsU, curryN } from 'infestines';
+import { isArray, isFunction, arityN, freeze, acyclicEqualsU, curryN, array0, id } from 'infestines';
 import { accept, validate, props, optional, freeFn, args } from 'partial.lenses.validation';
 import { lens } from 'partial.lenses';
 
@@ -25,11 +25,13 @@ function shiftOf(count) {
   }return level;
 }
 
-var construct = function construct(l, u, r) {
+var construct = process.env.NODE_ENV === 'production' ? function (l, u, r) {
   return { l: l, u: u, r: r };
+} : function (l, u, r) {
+  return freeze({ l: l, u: u, r: freeze(r) });
 };
 
-var empty = /*#__PURE__*/construct(0, 0, []);
+var empty = /*#__PURE__*/construct(0, 0, array0);
 
 var of = function of(v) {
   return construct(0, 1, [v]);
@@ -50,7 +52,11 @@ var length = function length(trie) {
   return trie.u - trie.l;
 };
 
-function setRec(shift, i, value, node) {
+var setRec = /*#__PURE__*/(process.env.NODE_ENV === 'production' ? id : function (fn) {
+  return function setRec(s, i, v, n) {
+    return freeze(fn(s, i, v, n));
+  };
+})(function (shift, i, value, node) {
   var j = i >> shift & MASK;
   var x = shift !== 0 ? setRec(shift - BITS, i, value, node[j] || '') : value;
   var r = [];
@@ -58,7 +64,7 @@ function setRec(shift, i, value, node) {
     r[k] = node[k];
   }r[j] = x;
   return r;
-}
+});
 
 function append(value, trie) {
   var upper = trie.u;
@@ -67,7 +73,11 @@ function append(value, trie) {
   return construct(trie.l, upper + 1, upper >> shift < SINGLE ? setRec(shift, upper, value, root) : [root, setRec(shift, upper, value, '')]);
 }
 
-function clrLhsRec(shift, i, node) {
+var clrLhsRec = /*#__PURE__*/(process.env.NODE_ENV === 'production' ? id : function (fn) {
+  return function clrLhsRec(s, i, n) {
+    return freeze(fn(s, i, n));
+  };
+})(function (shift, i, node) {
   var j = i >> shift & MASK;
   var x = 0 !== shift ? clrLhsRec(shift - BITS, i, node[j]) : node[j];
   var r = [];
@@ -77,9 +87,13 @@ function clrLhsRec(shift, i, node) {
   for (var _k = j + 1, n = node.length; _k < n; ++_k) {
     r[_k] = node[_k];
   }return r;
-}
+});
 
-function clrRhsRec(shift, i, node) {
+var clrRhsRec = /*#__PURE__*/(process.env.NODE_ENV === 'production' ? id : function (fn) {
+  return function clrRhsRec(s, i, n) {
+    return freeze(fn(s, i, n));
+  };
+})(function (shift, i, node) {
   var j = i >> shift & MASK;
   var x = 0 !== shift ? clrRhsRec(shift - BITS, i, node[j]) : node[j];
   var r = [];
@@ -87,7 +101,7 @@ function clrRhsRec(shift, i, node) {
     r[k] = node[k];
   }r[j] = x;
   return r;
-}
+});
 
 function slice(from, to, trie) {
   if (to <= from) return empty;
@@ -117,8 +131,10 @@ var take = function take(n, trie) {
 
 //
 
-var construct$1 = function construct(i, t, v, c) {
+var construct$1 = process.env.NODE_ENV === 'production' ? function (i, t, v, c) {
   return { i: i, t: t, v: v, c: c };
+} : function (i, t, v, c) {
+  return freeze({ i: i, t: t, v: v, c: freeze(c) });
 };
 
 //
