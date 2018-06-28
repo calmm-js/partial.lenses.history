@@ -33,6 +33,19 @@ const testEq = (expect, thunk) =>
   it(`${toExpr(thunk)} => ${show(expect)}`, () => assertEqual(expect, thunk()))
 
 describe('History', () => {
+  const checkFrozen =
+    process.env.NODE_ENV === 'production'
+      ? R.identity
+      : R.tap(
+          L.modify(
+            L.lazy(rec => L.cond([R.is(Object), L.seq([], [L.children, rec])])),
+            x => {
+              if (Object.isFrozen(x)) return x
+              throw Error(`Not frozen: ${JSON.stringify(x, null, 2)}`)
+            }
+          )
+        )
+
   const getState = state => ({
     undoIndex: L.get(H.undoIndex, state),
     redoIndex: L.get(H.redoIndex, state),
@@ -49,19 +62,36 @@ describe('History', () => {
       present: 101,
       index: 0
     },
-    () => I.seq(H.init(undefined, 101), H.undoForget, H.redoForget, getState)
+    () =>
+      I.seq(
+        H.init(undefined, 101),
+        checkFrozen,
+        H.undoForget,
+        checkFrozen,
+        H.redoForget,
+        checkFrozen,
+        getState
+      )
   )
 
   testEq({undoIndex: 1, redoIndex: 1, count: 3, present: 42, index: 1}, () =>
     I.seq(
       H.init({maxCount: 3}, 101),
+      checkFrozen,
       L.set(H.present, 69),
+      checkFrozen,
       L.set(H.present, 42),
+      checkFrozen,
       L.set(H.present, 42),
+      checkFrozen,
       L.set(H.present, 69),
+      checkFrozen,
       L.modify(H.undoIndex, R.dec),
+      checkFrozen,
       L.modify(H.undoIndex, R.dec),
+      checkFrozen,
       L.modify(H.redoIndex, R.dec),
+      checkFrozen,
       getState
     )
   )
@@ -86,9 +116,9 @@ describe('History', () => {
   testEq(16000, () => {
     let h = H.init({maxCount: 5000}, 1)
     for (let i = 2; i < 20000; ++i) h = L.set(H.present, i, h)
-    h = L.set(H.index, 1000, h)
-    h = H.redoForget(h)
-    h = H.undoForget(h)
+    h = checkFrozen(L.set(H.index, 1000, checkFrozen(h)))
+    h = checkFrozen(H.redoForget(h))
+    h = checkFrozen(H.undoForget(h))
     return L.get(H.present, h)
   })
 })
