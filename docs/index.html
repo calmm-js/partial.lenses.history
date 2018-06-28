@@ -158,7 +158,7 @@ above <code>CountdownButton</code> knows nothing about history.  It is just a ge
 button that decrements a counter.</p>
 <p>To wire countdown buttons to perform undo and redo actions on history, we use
 the <a href="#H-undoIndex"><code>H.undoIndex</code></a> and <a href="#H-redoIndex"><code>H.redoIndex</code></a> lenses to
-view the history.  Here is how looks like for the undo button:</p>
+view the history.  Here is how it looks like for the undo button:</p>
 <pre><code class="hljs lang-jsx">&lt;CountdownButton
   count={U.view(H.undoIndex, history)}
   title=&quot;Ctrl-z&quot;

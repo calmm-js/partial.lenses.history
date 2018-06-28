@@ -151,7 +151,7 @@ button that decrements a counter.
 
 To wire countdown buttons to perform undo and redo actions on history, we use
 the [`H.undoIndex`](#H-undoIndex) and [`H.redoIndex`](#H-redoIndex) lenses to
-view the history.  Here is how looks like for the undo button:
+view the history.  Here is how it looks like for the undo button:
 
 ```jsx
 <CountdownButton
