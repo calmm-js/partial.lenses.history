@@ -1,6 +1,6 @@
 {
   "name": "partial.lenses.history",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Partial Lenses History is a JavaScript library for Undo-Redo",
   "module": "dist/partial.lenses.history.es.js",
   "main": "dist/partial.lenses.history.cjs.js",
@@ -33,13 +33,13 @@
   },
   "homepage": "https://github.com/calmm-js/partial.lenses.history#readme",
   "dependencies": {
-    "infestines": "^0.4.9",
-    "partial.lenses": ">= 2.2.0",
-    "partial.lenses.validation": "^1.0.2"
+    "infestines": "^0.4.10",
+    "partial.lenses": ">=2.2.0",
+    "partial.lenses.validation": ">=1.0.0 <3.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
-    "babel-eslint": "^8.2.5",
+    "babel-eslint": "^8.2.6",
     "babel-plugin-annotate-pure-calls": "^0.3.0",
     "babel-plugin-check-es2015-constants": "^6.22.0",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
@@ -63,21 +63,21 @@
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-polyfill": "^6.26.0",
     "babel-register": "^6.26.0",
-    "codecov": "^3.0.2",
-    "concurrently": "^3.6.0",
-    "eslint": "^5.0.1",
+    "codecov": "^3.0.4",
+    "concurrently": "^3.6.1",
+    "eslint": "^5.3.0",
     "klipse-github-docs-generator": "^0.3.5",
     "livereload": "^0.7.0",
     "mocha": "^5.2.0",
     "nyc": "^12.0.2",
     "ramda": "^0.25.0",
-    "rollup": "^0.62.0",
-    "rollup-plugin-babel": "^3.0.5",
+    "rollup": "^0.64.1",
+    "rollup-plugin-babel": "^3.0.7",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^4.0.0",
     "sprintf-js": "^1.1.1",
-    "uglify-js": "^3.4.2",
+    "uglify-js": "^3.4.7",
     "watch-run": "^1.2.5"
   }
 }
