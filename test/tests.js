@@ -113,6 +113,19 @@ describe('History', () => {
     )
   })
 
+  testEq([1, 2, 5, 6], async () => {
+    let h = H.init({pushEquals: true}, 1)
+    h = L.set(H.present, 2, h)
+    h = L.set(H.present, 3, h)
+    h = L.set(H.presentReplace, 4, h)
+    h = L.set(H.presentReplace, 5, h)
+    h = L.set(H.present, 6, h)
+    return R.map(
+      i => L.get(H.present, L.set(H.index, i, h)),
+      R.range(0, H.count(h))
+    )
+  })
+
   testEq(16000, () => {
     let h = H.init({maxCount: 5000}, 1)
     for (let i = 2; i < 20000; ++i) h = L.set(H.present, i, h)

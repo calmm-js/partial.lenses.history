@@ -33,6 +33,26 @@ function setPresentU(value, history) {
   )
 }
 
+function setPresentReplaceU(value, history) {
+  const v = history.v
+  const i = history.i
+  const c = history.c
+  if (c.e) {
+    if (I.acyclicEqualsU(S.nth(i, v), value)) {
+      return history
+    }
+  }
+  const t = history.t
+  const now = Date.now()
+  const j0 = Math.max(0, i - c.m)
+  return construct(
+    i - j0,
+    S.append(now, S.slice(j0, i, t)),
+    S.append(value, S.slice(j0, i, v)),
+    c
+  )
+}
+
 const setIndexU = (index, history) =>
   construct(
     Math.max(0, Math.min(index, indexMax(history))),
@@ -68,6 +88,10 @@ export const indexMax = history => S.length(history.v) - 1
 export const present = L.lens(function present(history) {
   return S.nth(history.i, history.v)
 }, setPresentU)
+
+export const presentReplace = L.lens(function presentReplace(history) {
+  return S.nth(history.i, history.v)
+}, setPresentReplaceU)
 
 // Undo
 

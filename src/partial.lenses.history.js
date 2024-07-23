@@ -45,6 +45,7 @@ export const init = C(
 // Present
 
 export const present = C(H.present, lens(history, V.any))
+export const presentReplace = C(H.presentReplace, lens(history, V.any))
 
 // Undo
 

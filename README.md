@@ -37,6 +37,7 @@ Undo-Redo history.  Basic features:
     * [`H.init({[maxCount, pushEquals, replacePeriod]}, value) ~> history`](#H-init) <small><sup>v0.1.0</sup></small>
   * [Present](#present)
     * [`H.present ~> valueLens`](#H-present) <small><sup>v0.2.0</sup></small>
+    * [`H.presentReplace ~> valueLens`](#H-presentReplace) <small><sup>v1.3.0</sup></small>
   * [Undo](#undo)
     * [`H.undoForget(history) ~> history`](#H-undoForget) <small><sup>v0.1.0</sup></small>
     * [`H.undoIndex ~> numberLens`](#H-undoIndex) <small><sup>v0.2.0</sup></small>
@@ -284,6 +285,26 @@ thru(
 
 Note that modifications through `H.present` are not referentially transparent
 operations, because setting through `H.present` takes a timestamp underneath.
+
+#### <a id="H-presentReplace"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#H-presentReplace) [`H.presentReplace ~> valueLens`](#H-presentReplace) <small><sup>v1.3.0</sup></small>
+
+`H.presentReplace` is a
+[lens](https://github.com/calmm-js/partial.lenses/#partial-lenses) that focuses
+on the present value of history. When read it behaves exactly as [`H.present`](#H-present). When written it does *not* create a new history entry but instead replaces the current one. This might be useful for applying multiple changes in squence without polluting the history. 
+
+For example:
+
+```js
+thru(
+  H.init({}, 42),
+  L.modify(H.presentReplace, x => -x),
+  L.get(H.undoIndex)
+)
+// 0
+```
+
+Note that modifications through `H.presentReplace` are not referentially transparent
+operations, because setting through `H.presentReplace` takes a timestamp underneath.
 
 ### <a id="undo"></a> [≡](#contents) [▶](https://calmm-js.github.io/partial.lenses.history/index.html#undo) [Undo](#undo)
 
